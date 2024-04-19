@@ -1,6 +1,6 @@
 ﻿using CCC39Lib;
 
-var level = 1;
+var level = 2;
 
 WriteOutputs(level);
     
