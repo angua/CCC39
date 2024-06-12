@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCC39", "CCC39\CCC39.csproj", "{041EF2DB-D6E5-4D6A-8BEE-DEE7F9358D76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CCC39", "CCC39\CCC39.csproj", "{041EF2DB-D6E5-4D6A-8BEE-DEE7F9358D76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCC39Lib", "CCC39Lib\CCC39Lib.csproj", "{D10E5FDA-9971-4CA0-BCA0-2EBAAC1CE848}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CCC39Lib", "CCC39Lib\CCC39Lib.csproj", "{D10E5FDA-9971-4CA0-BCA0-2EBAAC1CE848}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonWPF", "CommonWPF\CommonWPF.csproj", "{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D10E5FDA-9971-4CA0-BCA0-2EBAAC1CE848}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D10E5FDA-9971-4CA0-BCA0-2EBAAC1CE848}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D10E5FDA-9971-4CA0-BCA0-2EBAAC1CE848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
