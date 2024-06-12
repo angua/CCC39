@@ -12,6 +12,7 @@ public class Solver
             1 => SolveLevel1(lines),
             2 => SolveLevel2(lines),
             3 => SolveLevel3(lines),
+            4 => SolveLevel4(lines),
             _ => throw new InvalidOperationException(($"Level {level} not supported."))
         };
     }
@@ -38,6 +39,7 @@ public class Solver
         return fullResult.ToString().TrimEnd('\n').TrimEnd('\r');
     }
     
+
     private string SolveLevel2(List<string> lines)
     {
         var actualLines = lines.Skip(1);
@@ -91,6 +93,7 @@ public class Solver
         return new Vector2(maxX - minX + 1, maxY - minY + 1);
     }
 
+
     private string SolveLevel3(List<string> lines)
     {
         var fullResult = new StringBuilder();
@@ -106,7 +109,7 @@ public class Solver
 
         return fullResult.ToString().TrimEnd('\n').TrimEnd('\r');
     }
-
+    
     private bool EvaluatePath(List<string> lines, ref int i)
     {
         var dimensions = lines[i].Split(' ').Select(int.Parse).ToArray();
@@ -153,5 +156,60 @@ public class Solver
         }
 
         return true;
+    }
+
+
+    private string SolveLevel4(List<string> lines)
+    {
+        var fullResult = new StringBuilder();
+
+        var numLawns = Convert.ToInt32(lines.First());
+
+        var lawns = new List<Lawn>();
+
+        var i = 1;
+        while (i < lines.Count)
+        {
+            // new lawn
+            var lawn = new Lawn();
+
+            var line = lines[i];
+
+            var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            lawn.Width = Convert.ToInt32(parts[0]);
+            lawn.Height = Convert.ToInt32(parts[1]);
+
+            for (int y = 0; y < lawn.Height; y++)
+            {
+                // parse tree positions
+                i++;
+                line = lines[i];
+
+                for (int x = 0; x < lawn.Width; x++)
+                {
+                    if (line[x] == 'X')
+                    {
+                        lawn.TreePositions.Add(new Vector2(x,y));
+                    }
+                }
+            }
+            lawns.Add(lawn);
+
+            fullResult.AppendLine(FindPath(lawn));
+
+
+            // next lawn
+            i++;
+        }
+
+        return fullResult.ToString().TrimEnd('\n').TrimEnd('\r');
+    }
+
+    private string? FindPath(Lawn lawn)
+    {
+        var output = "";
+
+        return output;
     }
 }
