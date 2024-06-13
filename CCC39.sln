@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CCC39Lib", "CCC39Lib\CCC39L
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonWPF", "CommonWPF\CommonWPF.csproj", "{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCC39UI", "CCC39UI\CCC39UI.csproj", "{89710EF0-9B6D-491E-B13D-07B7D0D62C90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26EFACD4-43AC-4D51-8AE0-C0F6ED09C894}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89710EF0-9B6D-491E-B13D-07B7D0D62C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89710EF0-9B6D-491E-B13D-07B7D0D62C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89710EF0-9B6D-491E-B13D-07B7D0D62C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89710EF0-9B6D-491E-B13D-07B7D0D62C90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
