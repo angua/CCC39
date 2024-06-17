@@ -140,8 +140,8 @@ class MainViewModel : ViewModelBase
     private void DrawLawn(Lawn lawn)
     {
         _lawnBitmap = new BitmapGridDrawing(lawn.Width, lawn.Height, _gridPositionSize, 1);
-        _lawnBitmap.BackgroundColor = Color.FromRgb(0, 200, 0);
-        _lawnBitmap.GridLineColor = Color.FromRgb(120, 255, 120);
+        _lawnBitmap.BackgroundColor = Color.FromRgb(0, 180, 0);
+        _lawnBitmap.GridLineColor = Color.FromRgb(100, 255, 100);
 
         _lawnBitmap.DrawBackGround();
 
@@ -150,12 +150,21 @@ class MainViewModel : ViewModelBase
             _lawnBitmap.FillGridCell((int)treePos.X, (int)treePos.Y, Color.FromRgb(0, 80, 20));
         }
 
+        if (lawn.Path.Count > 0)
+        {
+            var startPos = lawn.Path.First();
+            _lawnBitmap.DrawXInGridcell((int)startPos.X, (int)startPos.Y, _gridPositionSize, Color.FromRgb(255, 0, 0));
+            _lawnBitmap.DrawConnectedLines(lawn.Path, Color.FromRgb(255, 255, 0));
+
+            var endPos = lawn.Path.Last();
+            _lawnBitmap.DrawXInGridcell((int)endPos.X, (int)endPos.Y, _gridPositionSize / 2, Color.FromRgb(255, 255, 0));
+        }
+
+
         LawnImage = new Image();
 
         LawnImage.Stretch = Stretch.None;
         LawnImage.Margin = new Thickness(0);
-
-
 
         LawnImage.Source = _lawnBitmap.Picture;
         RaisePropertyChanged(nameof(LawnImage));

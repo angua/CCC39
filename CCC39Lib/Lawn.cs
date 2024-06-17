@@ -9,8 +9,10 @@ public class Lawn
 
     public List<Vector2> TreePositions { get; set; } = new();
 
-    public List<Vector2> Path { get; set;}
+    // series of xy positions on the lawn
+    public List<Vector2> Path { get; set; } = new();
 
-    public List<Direction> Directions { get; set; }
+    // movement instructions
+    public List<char> Instructions { get; set; } = new();
 
 }

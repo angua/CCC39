@@ -112,8 +112,11 @@ namespace CommonWPF
                 var startMapPos = linepositions[i];
                 var endMappos = linepositions[i + 1];
 
-                var lineStart = startMapPos * Size + new Vector2(half, half);
-                var lineEnd = endMappos * Size + new Vector2(half, half);
+                var startCellPosition = GetCellPosition((int)startMapPos.X, (int)startMapPos.Y);
+                var endCellPosition = GetCellPosition((int)endMappos.X, (int)endMappos.Y);
+
+                var lineStart = startCellPosition + new Vector2(half, half);
+                var lineEnd = endCellPosition + new Vector2(half, half);
                 
                 Drawing.DrawLine(lineStart, lineEnd, color);
             }
