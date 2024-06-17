@@ -41,8 +41,8 @@
             <TextBox Padding="6" Margin="0,10,0,0" Width="Auto" Text="{Binding CurrentOutput, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </StackPanel>
 
-        <ScrollViewer Margin="20,0,0,0" Grid.Column="2" Width="950" Height="950" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-            <Image Source="{Binding LawnImage.Source}" />
+        <ScrollViewer Margin="20,0,0,0" Grid.Column="2" Height="900" Width="900" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+            <Image Source="{Binding LawnImage.Source}" VerticalAlignment="Top" HorizontalAlignment="Left" />
 
         </ScrollViewer>
 

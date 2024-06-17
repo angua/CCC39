@@ -27,7 +27,7 @@ namespace CommonWPF
         public WriteableBitmap Picture => Drawing.Picture;
 
 
-        public BitmapGridDrawing(int rows, int columns, int size, int gridLineThickness)
+        public BitmapGridDrawing(int columns, int rows, int size, int gridLineThickness)
         {
             Rows = rows;
             Columns = columns;
@@ -61,7 +61,7 @@ namespace CommonWPF
                         GridLineThickness, Drawing.Picture.PixelHeight, 
                         GridLineColor);
                 }
-
+                
                 for (int y = 0; y < Rows - 1; y++)
                 {
                     Drawing.DrawRectangle(0, Size + y * (Size + GridLineThickness),
@@ -82,7 +82,7 @@ namespace CommonWPF
 
 
         /// <summary>
-        /// Fill grid cell with color (zero based counting
+        /// Fill grid cell with color (zero based counting)
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -146,7 +146,7 @@ namespace CommonWPF
         /// <returns></returns>
         private Vector2 GetCellPosition(int x, int y)
         {
-            return new Vector2(x * (Size + GridLineThickness), y * (Size + GridLineThickness));
+            return new Vector2(x * (Size + GridLineThickness) , y * (Size + GridLineThickness));
         }
 
     }

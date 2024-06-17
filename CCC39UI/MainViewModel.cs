@@ -13,7 +13,7 @@ namespace CCC39UI;
 class MainViewModel : ViewModelBase
 {
     // pixel size of a grid position on the map
-    private int _gridPositionSize = 9;
+    private int _gridPositionSize = 39;
 
     // tree of levels and files
     public ObservableCollection<ScenarioNode> LawnCollection { get; set; } = new();
@@ -140,13 +140,14 @@ class MainViewModel : ViewModelBase
     private void DrawLawn(Lawn lawn)
     {
         _lawnBitmap = new BitmapGridDrawing(lawn.Width, lawn.Height, _gridPositionSize, 1);
-        _lawnBitmap.BackgroundColor = Color.FromRgb(0, 255, 0);
+        _lawnBitmap.BackgroundColor = Color.FromRgb(0, 200, 0);
+        _lawnBitmap.GridLineColor = Color.FromRgb(120, 255, 120);
 
         _lawnBitmap.DrawBackGround();
 
         foreach (var treePos in lawn.TreePositions)
         {
-            _lawnBitmap.FillGridCell((int)treePos.X, (int)treePos.Y, Color.FromRgb(0, 0, 0));
+            _lawnBitmap.FillGridCell((int)treePos.X, (int)treePos.Y, Color.FromRgb(0, 80, 20));
         }
 
         LawnImage = new Image();
