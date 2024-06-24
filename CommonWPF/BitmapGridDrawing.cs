@@ -109,11 +109,19 @@ namespace CommonWPF
             // line start position on bitmap
             for (int i = 0; i < linepositions.Count - 1; i++)
             {
-                var startMapPos = linepositions[i];
-                var endMappos = linepositions[i + 1];
+                var startGridCell = linepositions[i];
+                var endGridCell = linepositions[i + 1];
 
-                var startCellPosition = GetCellPosition((int)startMapPos.X, (int)startMapPos.Y);
-                var endCellPosition = GetCellPosition((int)endMappos.X, (int)endMappos.Y);
+                // don't draw outside grid
+                if (startGridCell.X < 0 || startGridCell.Y <  0 || startGridCell.X >= Columns || startGridCell.Y >= Rows || 
+                    endGridCell.X < 0 || endGridCell.Y <  0 || endGridCell.X >= Columns || endGridCell.Y >= Rows)
+                {
+                    continue;
+                }
+
+                var startCellPosition = GetCellPosition((int)startGridCell.X, (int)startGridCell.Y);
+                var endCellPosition = GetCellPosition((int)endGridCell.X, (int)endGridCell.Y);
+
 
                 var lineStart = startCellPosition + new Vector2(half, half);
                 var lineEnd = endCellPosition + new Vector2(half, half);
@@ -134,6 +142,12 @@ namespace CommonWPF
             var cellCoordinates = GetCellPosition(x, y);
             // center X in in grid cell
             var sizediff = Size - drawSize;
+
+            // don't draw outside grid
+            if (x < 0 || y < 0 || x >= Columns || y >= Rows)
+            {
+                return;
+            }
 
             var startX = (int)(cellCoordinates.X + sizediff / 2);
             var startY = (int)(cellCoordinates.Y + sizediff / 2);

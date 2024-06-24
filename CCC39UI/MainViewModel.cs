@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
-using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +14,8 @@ class MainViewModel : ViewModelBase
     // pixel size of a grid position on the map
     private int _gridPositionSize = 39;
 
+    private Solver _solver = new();
+
     // tree of levels and files
     public ObservableCollection<ScenarioNode> LawnCollection { get; set; } = new();
 
@@ -25,24 +26,21 @@ class MainViewModel : ViewModelBase
         set
         {
             SetValue(value);
-            _currentLawnIndex = 0;
-            if (value != null)
+            CurrentLawnIndex = 0;
+            if (value != null && value.NumLawns > 0)
             {
-                CurrentLawn = value.Lawns[_currentLawnIndex];
+                CurrentLawn = value.Lawns[CurrentLawnIndex];
             }
         }
     }
 
-    private BitmapGridDrawing? _lawnBitmap;
-    private BitmapGridDrawing? _inputBitmap;
-    public Image LawnImage
+   
+    // lawn in file
+    public int CurrentLawnIndex
     {
-        get => GetValue<Image>();
+        get => GetValue<int>();
         set => SetValue(value);
     }
-
-    // lawn in file
-    private int _currentLawnIndex = 0;
     public Lawn CurrentLawn
     {
         get => GetValue<Lawn>();
@@ -56,6 +54,21 @@ class MainViewModel : ViewModelBase
         }
     }
 
+    private BitmapGridDrawing? _lawnBitmap;
+    private BitmapGridDrawing? _inputBitmap;
+    public Image LawnImage
+    {
+        get => GetValue<Image>();
+        set => SetValue(value);
+    }
+
+    public string LastStepValid
+    {
+        get => GetValue<string>();
+        set => SetValue(value);
+    }
+
+
 
     public string CurrentOutput
     {
@@ -66,31 +79,72 @@ class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
+        CurrentLawnIndex = 0;
         ParseLawns();
 
         PreviousInput = new RelayCommand(CanPreviousInput, DoPreviousInput);
         NextInput = new RelayCommand(CanNextInput, DoNextInput);
+        FindPath = new RelayCommand(CanFindPath, DoFindPath);
+        FindPathNextStep = new RelayCommand(CanFindPathNextStep, DoFindPathNextStep);
+        ClearPath = new RelayCommand(CanClearPath, DoClearPath);
     }
 
     public RelayCommand PreviousInput { get; }
     public bool CanPreviousInput()
     {
-        return CurrentLawnSet != null && _currentLawnIndex > 0;
+        return CurrentLawnSet != null && CurrentLawnIndex > 0;
     }
     public void DoPreviousInput()
     {
-        CurrentLawn = CurrentLawnSet.Lawns[--_currentLawnIndex];
+        CurrentLawn = CurrentLawnSet.Lawns[--CurrentLawnIndex];
     }
 
     public RelayCommand NextInput { get; }
     public bool CanNextInput()
     {
-        return CurrentLawnSet != null && _currentLawnIndex < CurrentLawnSet.Lawns.Count - 1;
+        return CurrentLawnSet != null && CurrentLawnIndex < CurrentLawnSet.Lawns.Count - 1;
     }
     public void DoNextInput()
     {
-        CurrentLawn = CurrentLawnSet.Lawns[++_currentLawnIndex];
+        CurrentLawn = CurrentLawnSet.Lawns[++CurrentLawnIndex];
     }
+
+
+    public RelayCommand FindPath { get; }
+    public bool CanFindPath()
+    {
+        return true;
+    }
+    public void DoFindPath()
+    {
+        _solver.FindPath(CurrentLawn);
+    }
+
+
+    public RelayCommand FindPathNextStep { get; }
+    public bool CanFindPathNextStep()
+    {
+        return true;
+    }
+    public void DoFindPathNextStep()
+    {
+        _solver.FindPathNextStep(CurrentLawn);
+        _solver.CreatePathfromSteps(CurrentLawn);
+        LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+        DrawLawn(CurrentLawn);
+    }
+
+    public RelayCommand ClearPath { get; }
+    public bool CanClearPath()
+    {
+        return true;
+    }
+    public void DoClearPath()
+    {
+        CurrentLawn.ClearPath();
+        DrawLawn(CurrentLawn);
+    }
+
 
 
     private void ParseLawns()
