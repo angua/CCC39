@@ -14,6 +14,8 @@ public class PathStep
 
     public bool IsValid { get; set; } = true;
 
+    public bool ChooseDifferentPath { get; set; } = false;
+
     internal void CreatePath()
     {
         PathingRectangle.CreatePath();

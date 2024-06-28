@@ -37,6 +37,7 @@ public class Lawn
     public HashSet<Rectangle> ObjectsOnLawn { get; set; } = new();
 
     public bool MowingFinished { get; set; } = false;
+    public int PathStepsCount {  get; set; } = 0;
 
     public void ClearPath()
     {
@@ -50,14 +51,6 @@ public class Lawn
         MowingFinished = false;
     }
 
-    public HashSet<Rectangle> GetObjectsOnLawn()
-    {
-        // trees and path rectangles
-
-        var objectsOnLawn = new HashSet<Rectangle>(TreeRectangles);
-        objectsOnLawn.UnionWith(PathRectangles.ToHashSet());
-        return objectsOnLawn;
-    }
 
     internal int GetCoveredArea()
     {
@@ -113,16 +106,58 @@ public class Lawn
      */
     internal void SetStartPositions()
     {
+        PathStepsCount = 0;
         var treePos = TreePositions.First();
 
         var startX = new HashSet<int>();
         var startY = new HashSet<int>();
 
-        if (treePos.X > 0)
+        // 1 distance to wall, place start position between tree and wall
+        if (treePos.X == 1)
         {
-            startX.Add(((int)treePos.X - 1));
+            startX.Add(0);
+            startY.Add((int)treePos.Y);
         }
-        startX.Add((int)treePos.X);
+        else if (treePos.X == Width - 2)
+        {
+            startX.Add(Width - 1);
+            startY.Add((int)treePos.Y);
+        }
+        if (treePos.Y == 1)
+        {
+            startX.Add((int)treePos.X);
+            startY.Add(0);
+        }
+        else if (treePos.Y == Height - 2)
+        {
+            startX.Add((int)treePos.X);
+            startY.Add(Height - 1);
+        }
+
+        if (treePos.Y % 2 == 0 && (Height - treePos.Y) % 2 == 0)
+        {
+            // start left above tree
+            if (treePos.X > 0)
+            {
+                startX.Add(((int)treePos.X - 1));
+            }
+            startX.Add((int)treePos.X);
+
+        }
+        else
+        {
+
+
+            // start above tree
+            startX.Add((int)treePos.X);
+            if (treePos.X > 0)
+            {
+                startX.Add(((int)treePos.X - 1));
+            }
+        }
+
+
+
         if (treePos.X < Width - 1)
         {
             startX.Add(((int)treePos.X + 1));
@@ -144,11 +179,11 @@ public class Lawn
             startY.Add(((int)treePos.Y + 1));
         }
 
-        for (int xCoordinate = 0; xCoordinate < startX.Count; xCoordinate++)
+        foreach (var x in startX)
         {
-            for (int yCoordinate = 0; yCoordinate < startY.Count; yCoordinate++)
+            foreach (var y in startY)
             {
-                var pos = new Vector2(xCoordinate, yCoordinate);
+                var pos = new Vector2(x, y);
 
                 if (!TreePositions.Contains(pos))
                 {

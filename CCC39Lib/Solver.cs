@@ -211,7 +211,7 @@ public class Solver
 
     public void FindPath(Lawn lawn)
     {
-        while (lawn.Path.Count != lawn.Fields)
+        while (!lawn.MowingFinished)
         {
             FindPathNextStep(lawn);
         }
@@ -219,6 +219,8 @@ public class Solver
 
     public void FindPathNextStep(Lawn lawn)
     {
+        lawn.PathStepsCount++;
+
         // start pathing
         if (lawn.StartPositions.Count == 0)
         {
@@ -240,7 +242,6 @@ public class Solver
             GetNextStep(lawn);
 
         }
-
 
     }
 
@@ -265,7 +266,18 @@ public class Solver
             {
                 // can continue from here, create next rectangle
                 var nextrectangle = currentPathStep.NextRectangles[currentPathStep.NextRectangleIndex];
-                CreatePathStep(lawn, nextrectangle);
+
+                if (nextrectangle.Area == 1 && currentPathStep.NextRectangles.Count != 1)
+                {
+                    // only use 1x1 rectangle when no other are available
+                    currentPathStep.NextRectangleIndex++;
+                    GetNextStep(lawn);
+
+                }
+                else
+                {
+                    CreatePathStep(lawn, nextrectangle);
+                }
             }
         }
         else
@@ -276,7 +288,16 @@ public class Solver
             if (lawn.PathSteps.Count > 0)
             {
                 var previousPathStep = lawn.PathSteps.Last();
-                previousPathStep.NextRectangleIndex++;
+                if (currentPathStep.ChooseDifferentPath)
+                {
+                    // don't try the other rectangles
+                    previousPathStep.NextRectangleIndex = previousPathStep.NextRectangles.Count;
+                }
+                else
+                {
+                    // try next rectangle
+                    previousPathStep.NextRectangleIndex++;
+                }
                 GetNextStep(lawn);
             }
             else
@@ -340,20 +361,27 @@ public class Solver
         {
             // can not continue from here
             pathstep.IsValid = false;
+
+            if (coveredArea > 0.95 * lawn.Fields)
+            {
+                pathstep.ChooseDifferentPath = true;
+            }
+
         }
         else
         {
-            /*
-            // flood fill from next start position to check for unreachable parts
-            var reachableArea = GetReachableArea(lawn, pathstep.NextStartPositions.First());
-            if (coveredArea + reachableArea < lawn.Fields)
-            {
-                pathstep.IsValid = false;
 
-            }
-            else
+            // flood fill from next start position to check for unreachable parts
+            if (lawn.PathSteps.Count > 3)
             {
-            */
+                var reachableArea = GetReachableArea(lawn, pathstep.NextStartPositions.First());
+                if (coveredArea + reachableArea < lawn.Fields)
+                {
+                    pathstep.IsValid = false;
+                    return;
+                }
+            }
+
             var rectangles = new List<PathRectangle>();
             foreach (var startPos in pathstep.NextStartPositions)
             {
@@ -361,10 +389,11 @@ public class Solver
             }
             pathstep.NextRectangles = rectangles.OrderByDescending(r => r.Area).ToList();
             pathstep.NextRectangleIndex = 0;
+
+
         }
 
     }
-
 
     private int GetReachableArea(Lawn lawn, Vector2 startposition)
     {

@@ -34,7 +34,7 @@ class MainViewModel : ViewModelBase
         }
     }
 
-   
+
     // lawn in file
     public int CurrentLawnIndex
     {
@@ -51,6 +51,7 @@ class MainViewModel : ViewModelBase
             {
                 DrawLawn(value);
             }
+            StepCount = 0;
         }
     }
 
@@ -68,6 +69,11 @@ class MainViewModel : ViewModelBase
         set => SetValue(value);
     }
 
+    public int StepCount
+    {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
 
 
     public string CurrentOutput
@@ -85,6 +91,8 @@ class MainViewModel : ViewModelBase
         PreviousInput = new RelayCommand(CanPreviousInput, DoPreviousInput);
         NextInput = new RelayCommand(CanNextInput, DoNextInput);
         FindPath = new RelayCommand(CanFindPath, DoFindPath);
+
+        ShowPathFinding = new RelayCommand(CanShowPathFinding, DoShowPathFinding);
         FindPathNextStep = new RelayCommand(CanFindPathNextStep, DoFindPathNextStep);
         ClearPath = new RelayCommand(CanClearPath, DoClearPath);
     }
@@ -118,6 +126,30 @@ class MainViewModel : ViewModelBase
     public void DoFindPath()
     {
         _solver.FindPath(CurrentLawn);
+        _solver.CreatePathfromSteps(CurrentLawn);
+        LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+        StepCount = CurrentLawn.PathStepsCount;
+
+        DrawLawn(CurrentLawn);
+
+    }
+    public RelayCommand ShowPathFinding { get; }
+    public bool CanShowPathFinding()
+    {
+        return true;
+    }
+    public void DoShowPathFinding()
+    {
+        while (!CurrentLawn.MowingFinished)
+        {
+            _solver.FindPathNextStep(CurrentLawn);
+            _solver.CreatePathfromSteps(CurrentLawn);
+            LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+            StepCount = CurrentLawn.PathStepsCount;
+            DrawLawn(CurrentLawn);
+            Thread.Sleep(10);
+        }
+
     }
 
 
@@ -131,6 +163,8 @@ class MainViewModel : ViewModelBase
         _solver.FindPathNextStep(CurrentLawn);
         _solver.CreatePathfromSteps(CurrentLawn);
         LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+        StepCount = CurrentLawn.PathStepsCount;
+
         DrawLawn(CurrentLawn);
     }
 
@@ -142,6 +176,7 @@ class MainViewModel : ViewModelBase
     public void DoClearPath()
     {
         CurrentLawn.ClearPath();
+        StepCount = 0;
         DrawLawn(CurrentLawn);
     }
 
@@ -201,8 +236,22 @@ class MainViewModel : ViewModelBase
 
         foreach (var treePos in lawn.TreePositions)
         {
-            _lawnBitmap.FillGridCell((int)treePos.X, (int)treePos.Y, Color.FromRgb(0, 80, 20));
+            _lawnBitmap.FillGridCell((int)treePos.X, (int)treePos.Y, Color.FromRgb(0, 60, 15));
         }
+
+        // fill pathing rectangles with different colors
+        for (int s = 0; s < lawn.PathSteps.Count; s++)
+        {
+            var step = lawn.PathSteps[s];
+            var rectangleColor = GetRectangleColor(s);
+
+            foreach (var pos in step.Path)
+            {
+                _lawnBitmap.FillGridCell((int)pos.X, (int)pos.Y, rectangleColor);
+            }
+
+        }
+
 
         if (lawn.Path.Count > 0)
         {
@@ -224,4 +273,19 @@ class MainViewModel : ViewModelBase
         RaisePropertyChanged(nameof(LawnImage));
     }
 
+    private Color GetRectangleColor(int s)
+    {
+        var div = s % 5;
+
+        return div switch
+        {
+            0 => Color.FromRgb(0, 12, 170),
+            1 => Color.FromRgb(45, 19, 241),
+            2 => Color.FromRgb(0, 210, 255),
+            3 => Color.FromRgb(0, 240, 220),
+            4 => Color.FromRgb(0, 133, 119),
+        };
+
+
+    }
 }
