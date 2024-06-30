@@ -10,6 +10,7 @@ void WriteOutputs(int level)
 
     for (var inputFileNumber = 1; inputFileNumber <= 5; inputFileNumber++)
     {
+        Console.WriteLine($"File number {inputFileNumber}");
         var inputfilename = $"../../../../Files/level{level}_{inputFileNumber}.in";
         var lines = File.ReadAllLines(inputfilename).ToList();
 

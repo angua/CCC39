@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using System.Text;
+using CCC39UI;
 using Common;
 
 namespace CCC39Lib;
@@ -170,44 +171,16 @@ public class Solver
     {
         var fullResult = new StringBuilder();
 
-        var numLawns = Convert.ToInt32(lines.First());
+        var lawnSet = new LawnSet(4, lines);
 
-        var lawns = new List<Lawn>();
+        var lawnNum = 0;
 
-        var i = 1;
-        while (i < lines.Count)
+        foreach (var lawn in lawnSet.Lawns)
         {
-            // new lawn
-            var lawn = new Lawn();
-
-            var line = lines[i];
-
-            var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            lawn.Width = Convert.ToInt32(parts[0]);
-            lawn.Height = Convert.ToInt32(parts[1]);
-
-            for (int y = 0; y < lawn.Height; y++)
-            {
-                // parse tree positions
-                i++;
-                line = lines[i];
-
-                for (int x = 0; x < lawn.Width; x++)
-                {
-                    if (line[x] == 'X')
-                    {
-                        lawn.TreePositions.Add(new Vector2(x, y));
-                    }
-                }
-            }
-            lawns.Add(lawn);
-
-            //fullResult.AppendLine(FindPath(lawn));
-
-
-            // next lawn
-            i++;
+            FindPath(lawn);
+            fullResult.AppendLine(lawn.InstructionString);
+            Console.WriteLine($"Lawn {lawnNum++}");
+            lawn.ClearPath();
         }
 
         return fullResult.ToString().TrimEnd('\n').TrimEnd('\r');

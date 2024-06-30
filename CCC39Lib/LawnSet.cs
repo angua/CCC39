@@ -18,12 +18,20 @@ public class LawnSet
         Level = level;
     }
 
+    public LawnSet(int level, List<string> lines)
+    {
+        Lines = lines;
+        Lawns = ParseLawns(level, lines);
+
+        Level = level;
+    }
+
     public int NumLawns { get; private set; }
 
     public int Level { get; }
 
-    public string InputFilename { get; }
-    public string OutputFilename { get; }
+    public string? InputFilename { get; }
+    public string? OutputFilename { get; }
     public List<string> Lines { get; }
 
     public List<Lawn> Lawns { get; } = new List<Lawn>();
