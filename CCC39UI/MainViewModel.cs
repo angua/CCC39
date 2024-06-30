@@ -53,6 +53,7 @@ class MainViewModel : ViewModelBase
                 Instructions = CurrentLawn.InstructionString;
             }
             StepCount = 0;
+            Timing = 0;
         }
     }
 
@@ -83,10 +84,16 @@ class MainViewModel : ViewModelBase
         set => SetValue(value);
     }
 
+    public long Timing
+    {
+        get => GetValue<long>();
+        set => SetValue(value);
+    }
 
     public MainViewModel()
     {
         CurrentLawnIndex = 0;
+        Timing = 0;
         ParseLawns();
 
         PreviousInput = new RelayCommand(CanPreviousInput, DoPreviousInput);
@@ -130,6 +137,7 @@ class MainViewModel : ViewModelBase
         _solver.CreatePathfromSteps(CurrentLawn);
         LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
         StepCount = CurrentLawn.PathStepsCount;
+        Timing = _solver.Timing;
 
         DrawLawn(CurrentLawn);
         Instructions = CurrentLawn.InstructionString;
@@ -179,6 +187,7 @@ class MainViewModel : ViewModelBase
     {
         CurrentLawn.ClearPath();
         StepCount = 0;
+        Timing = 0;
         DrawLawn(CurrentLawn);
     }
 

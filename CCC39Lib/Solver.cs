@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Numerics;
 using System.Text;
 using CCC39UI;
@@ -12,6 +13,8 @@ public class Solver
     private static Vector2 _left = new Vector2(-1, 0);
     private static Vector2 _right = new Vector2(1, 0);
     private static Vector2 _down = new Vector2(0, 1);
+
+    public long Timing { get; private set; }
 
     public string Solve(int level, List<string> lines)
     {
@@ -190,10 +193,14 @@ public class Solver
 
     public void FindPath(Lawn lawn)
     {
+        var watch = new Stopwatch();
+        watch.Start();
         while (!lawn.MowingFinished)
         {
             FindPathNextStep(lawn);
         }
+        watch.Stop();
+        Timing = watch.ElapsedMilliseconds;
     }
 
     public void FindPathNextStep(Lawn lawn)
