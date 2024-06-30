@@ -7,6 +7,11 @@ namespace CCC39Lib;
 
 public class Solver
 {
+    private static Vector2 _up = new Vector2(0, -1);
+    private static Vector2 _left = new Vector2(-1, 0);
+    private static Vector2 _right = new Vector2(1, 0);
+    private static Vector2 _down = new Vector2(0, 1);
+
     public string Solve(int level, List<string> lines)
     {
         return level switch
@@ -275,6 +280,7 @@ public class Solver
             }
 
             CreatePathfromSteps(lawn);
+            lawn.Instructions = CreateDirectionsFromPath(lawn.Path);
         }
 
     }
@@ -291,4 +297,40 @@ public class Solver
 
         lawn.Path = path;
     }
+
+    public List<char> CreateDirectionsFromPath(List<Vector2> path)
+    {
+        var list = new List<char>();
+        for (int i = 1; i < path.Count; i++)
+        {
+            var dir = path[i] - path[i - 1];
+            list.Add(GetInstruction(dir));
+        }
+        return list;
+    }
+
+    private char GetInstruction(Vector2 dir)
+    {
+        if (dir == _up)
+        {
+            return 'W';
+        }
+        if (dir == _down)
+        {
+            return 'S';
+        }
+        if (dir == _left)
+        {
+            return 'A';
+        }
+        if (dir == _right)
+        {
+            return 'D';
+        }
+
+        throw new InvalidOperationException($"unknown direction {dir}");
+
+    }
+
+
 }

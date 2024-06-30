@@ -50,6 +50,7 @@ class MainViewModel : ViewModelBase
             if (CurrentLawnSet != null && value != null)
             {
                 DrawLawn(value);
+                Instructions = CurrentLawn.InstructionString;
             }
             StepCount = 0;
         }
@@ -76,7 +77,7 @@ class MainViewModel : ViewModelBase
     }
 
 
-    public string CurrentOutput
+    public string Instructions
     {
         get => GetValue<string>();
         set => SetValue(value);
@@ -131,6 +132,7 @@ class MainViewModel : ViewModelBase
         StepCount = CurrentLawn.PathStepsCount;
 
         DrawLawn(CurrentLawn);
+        Instructions = CurrentLawn.InstructionString;
 
     }
     public RelayCommand ShowPathFinding { get; }

@@ -52,7 +52,7 @@
             </StackPanel>
 
             <TextBlock Margin="0,30,0,0" Text="Instructions" />
-            <TextBlock Text="{Binding CurrentLawn.InstructionString}" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding Instructions}" TextWrapping="Wrap" />
 
             <Button Padding="6" Command="{Binding FindPath}" Content="Find Path"></Button>
             <Button Padding="6" Command="{Binding ShowPathFinding}" Content="Show Path Finding"></Button>

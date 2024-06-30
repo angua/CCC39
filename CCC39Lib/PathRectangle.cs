@@ -105,13 +105,19 @@ public class PathRectangle : Rectangle
             EndPosition = new Vector2(endX, endY);
             _secondMoveCount = Height - 1;
         }
-        else
+        else if (SecondMoveDir.X != 0)
         {
             // move in y first, the meander in x
             var endY = Width % 2 != 0 ? FirstOppositePosition.Y : StartPosition.Y;
             var endX = StartPosition.X == UpperLeftCornerX ? LowerRightCornerX : UpperLeftCornerX;
             EndPosition = new Vector2(endX, endY);
             _secondMoveCount = Width - 1;
+        }
+        else
+        {
+            // no mevement in second dir
+            EndPosition = FirstOppositePosition;
+            _secondMoveCount = 0;
         }
 
     }
