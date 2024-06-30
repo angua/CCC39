@@ -21,6 +21,7 @@ public class Solver
             2 => SolveLevel2(lines),
             3 => SolveLevel3(lines),
             4 => SolveLevel4(lines),
+            5 => SolveLevel4(lines),
             _ => throw new InvalidOperationException(($"Level {level} not supported."))
         };
     }
