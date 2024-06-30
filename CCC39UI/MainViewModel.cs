@@ -12,7 +12,7 @@ namespace CCC39UI;
 class MainViewModel : ViewModelBase
 {
     // pixel size of a grid position on the map
-    private int _gridPositionSize = 39;
+    private int _gridPositionSize = 19;
 
     private Solver _solver = new();
 
@@ -127,7 +127,7 @@ class MainViewModel : ViewModelBase
     {
         _solver.FindPath(CurrentLawn);
         _solver.CreatePathfromSteps(CurrentLawn);
-        LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+        LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
         StepCount = CurrentLawn.PathStepsCount;
 
         DrawLawn(CurrentLawn);
@@ -144,7 +144,7 @@ class MainViewModel : ViewModelBase
         {
             _solver.FindPathNextStep(CurrentLawn);
             _solver.CreatePathfromSteps(CurrentLawn);
-            LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+            LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
             StepCount = CurrentLawn.PathStepsCount;
             DrawLawn(CurrentLawn);
             Thread.Sleep(10);
@@ -162,7 +162,7 @@ class MainViewModel : ViewModelBase
     {
         _solver.FindPathNextStep(CurrentLawn);
         _solver.CreatePathfromSteps(CurrentLawn);
-        LastStepValid = CurrentLawn.PathSteps.Last().IsValid.ToString();
+        LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
         StepCount = CurrentLawn.PathStepsCount;
 
         DrawLawn(CurrentLawn);
@@ -240,9 +240,9 @@ class MainViewModel : ViewModelBase
         }
 
         // fill pathing rectangles with different colors
-        for (int s = 0; s < lawn.PathSteps.Count; s++)
+        for (int s = 0; s < lawn.CorrectPathSteps.Count; s++)
         {
-            var step = lawn.PathSteps[s];
+            var step = lawn.CorrectPathSteps[s];
             var rectangleColor = GetRectangleColor(s);
 
             foreach (var pos in step.Path)

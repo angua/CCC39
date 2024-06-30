@@ -31,10 +31,10 @@ public class Lawn
     public int NextRectangleIndex { get; set; } = 0;
 
     public HashSet<PathRectangle> PathRectangles { get; set; } = new();
-    public List<PathStep> PathSteps { get; set; } = new();
+    public List<PathStep> CorrectPathSteps { get; set; } = new();
 
-    // trees and path rectangles
-    public HashSet<Rectangle> ObjectsOnLawn { get; set; } = new();
+    public PathStep StartPathStep { get; set; } = new();
+
 
     public bool MowingFinished { get; set; } = false;
     public int PathStepsCount {  get; set; } = 0;
@@ -46,9 +46,10 @@ public class Lawn
         NextPathrectangles.Clear();
         NextRectangleIndex = 0;
         PathRectangles.Clear();
-        PathSteps.Clear();
-        ObjectsOnLawn = new HashSet<Rectangle>(TreeRectangles);
+        CorrectPathSteps.Clear();
+        StartPathStep = new();
         MowingFinished = false;
+        PathStepsCount = 0;
     }
 
 
@@ -87,7 +88,6 @@ public class Lawn
             TreeRectangles.Add(new Rectangle(pos, pos));
         }
 
-        ObjectsOnLawn = new HashSet<Rectangle>(TreeRectangles);
 
         return i;
     }

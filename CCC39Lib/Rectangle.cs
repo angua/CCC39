@@ -25,6 +25,7 @@ public class Rectangle
         Area = Width * Height;
     }
 
+
     public Rectangle(Rectangle rect)
     {
         UpperLeftCorner = rect.UpperLeftCorner;
@@ -44,5 +45,25 @@ public class Rectangle
     public int Width { get; private set; }
     public int Height { get; private set; }
     public int Area { get; private set; }
+
+
+
+    internal bool Intersect(Vector2 position)
+    {
+        return position.X >= UpperLeftCornerX &&
+               position.X <= LowerRightCornerX &&
+               position.Y >= UpperLeftCornerY &&
+               position.Y <= LowerRightCornerY;
+    }
+
+    internal bool Intersect(Rectangle rec2)
+    {
+        return UpperLeftCornerX <= rec2.LowerRightCornerX &&
+            LowerRightCornerX >= rec2.UpperLeftCornerX &&
+            UpperLeftCornerY <= rec2.LowerRightCornerY &&
+            LowerRightCornerY >= rec2.UpperLeftCornerY;
+    }
+
+
 
 }
