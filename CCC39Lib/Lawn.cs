@@ -13,7 +13,7 @@ public class Lawn
     public List<Vector2> TreePositions { get; set; } = new();
 
     // 1x1 rectangles for obstacle detection
-    public HashSet<Rectangle> TreeRectangles { get; set; } = new();
+    public List<Rectangle> TreeRectangles { get; set; } = new();
 
 
     // series of xy positions on the lawn

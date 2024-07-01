@@ -1,4 +1,5 @@
 ﻿using CCC39Lib;
+using CCC39UI;
 
 var level = 5;
 
@@ -9,6 +10,9 @@ DoPerformanceTest();
 void DoPerformanceTest()
 {
     var solver = new Solver();
+
+    Console.WriteLine("Lawn set 1");
+
     var level = 4;
     var inputFileNumber = 1;
 
@@ -21,7 +25,22 @@ void DoPerformanceTest()
     {
         Console.WriteLine(time);
     }
-    Console.WriteLine($"Total time: {timing.Sum()}");
+    Console.WriteLine($"Total:");
+    Console.WriteLine(timing.Sum());
+
+    inputFileNumber = 5;
+
+    Console.WriteLine($"slow lawn");
+    inputfilename = $"../../../../Files/level{level}_{inputFileNumber}.in";
+    lines = File.ReadAllLines(inputfilename).ToList();
+
+    var set = new LawnSet(level, lines);
+    var slowLawn = set.Lawns[1];
+
+    var slowTiming = solver.PerformanceTest(slowLawn);
+    Console.WriteLine(slowTiming);
+
+
 
 }
 

@@ -334,4 +334,10 @@ public class Solver
         }
         return times;
     }
+
+    public long PerformanceTest(Lawn lawn)
+    {
+        FindPath(lawn);
+        return Timing;
+    }
 }

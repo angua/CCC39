@@ -16,7 +16,7 @@ public class PathStep
     public PathStep? CorrectNextStep { get; set; }
 
 
-    public HashSet<Rectangle> ObjectsOnLawn { get; set; } = new();
+    public List<Rectangle> ObjectsOnLawn { get; set; } = new();
 
     public int CoveredArea { get; set; }
 
@@ -100,14 +100,13 @@ public class PathStep
 
         if (previousPathStep == null)
         {
-            pathstep.ObjectsOnLawn = new HashSet<Rectangle>(lawn.TreeRectangles);
+            pathstep.ObjectsOnLawn = new List<Rectangle>(lawn.TreeRectangles);
             pathstep.CoveredArea = rectangle.Area;
             pathstep.PathStepCount = 1;
         }
         else
         {
-            pathstep.ObjectsOnLawn = new HashSet<Rectangle>(previousPathStep.ObjectsOnLawn);
-
+            pathstep.ObjectsOnLawn = new List<Rectangle>(previousPathStep.ObjectsOnLawn);
             pathstep.CoveredArea = previousPathStep.CoveredArea + rectangle.Area;
             pathstep.PathStepCount = previousPathStep.PathStepCount + 1;
         }
@@ -132,7 +131,7 @@ public class PathStep
         else
         {
             // flood fill from next start position to check for unreachable parts
-            if (pathstep.PathStepCount > 3)
+            if (false)
             {
                 var reachableArea = pathstep.GetReachableArea(lawn, pathstep.NextStartPositions.First());
                 if (pathstep.CoveredArea + reachableArea < lawn.Fields)
@@ -149,14 +148,7 @@ public class PathStep
             }
             pathstep.NextRectangles = rectangles.OrderByDescending(r => r.Area).ToList();
 
-            foreach (var rect in pathstep.NextRectangles)
-            {
-
-            }
-
             pathstep.NextRectangleIndex = 0;
-
-
         }
         return pathstep;
     }
@@ -169,7 +161,7 @@ public class PathStep
     public static PathStep CreateEmptyPathStep(Lawn lawn)
     {
         var pathstep = new PathStep();
-        pathstep.ObjectsOnLawn = new HashSet<Rectangle>(lawn.TreeRectangles);
+        pathstep.ObjectsOnLawn = new List<Rectangle>(lawn.TreeRectangles);
         pathstep.CoveredArea = 0;
         pathstep.PathStepCount = 0;
 
@@ -200,7 +192,7 @@ public class PathStep
 
 
         // objects closest to start position in all 4 directions
-        var obstacles = new HashSet<Rectangle>();
+        var obstacles = new List<Rectangle>();
 
         if (objectsLeft.Count() > 0)
         {
@@ -235,8 +227,9 @@ public class PathStep
         var borderRectangle = new Rectangle(new Vector2(minX, minY), new Vector2(maxX, maxY));
 
         // obstacles inside this area
-        foreach (var objectOnLawn in ObjectsOnLawn)
+        for (int i = 0; i < ObjectsOnLawn.Count; i++)
         {
+            var objectOnLawn = ObjectsOnLawn[i];
             if (borderRectangle.Intersect(objectOnLawn))
             {
                 obstacles.Add(objectOnLawn);
@@ -258,8 +251,9 @@ public class PathStep
             maxY
         };
 
-        foreach (var obstacle in obstacles)
+        for (int i = 0; i < obstacles.Count; i++)
         {
+            var obstacle = obstacles[i];
             if (obstacle.UpperLeftCornerX > 0)
             {
                 edgeX.Add(obstacle.UpperLeftCornerX - 1);
@@ -295,8 +289,9 @@ public class PathStep
 
                 // obstacles inside this rectangle, don't use
                 var use = true;
-                foreach (var objectOnLawn in ObjectsOnLawn)
+                for (int i = 0; i < ObjectsOnLawn.Count; i++)
                 {
+                    var objectOnLawn = ObjectsOnLawn[i];
                     if (rect.Intersect(objectOnLawn))
                     {
                         use = false;
