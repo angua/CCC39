@@ -187,7 +187,7 @@ public class MathUtils
         return new Vector2(input.Y, -input.X);
     }
 
-    public static List<Vector2> OrthogonalDirections => new List<Vector2>()
+    public static List<Vector2> OrthogonalDirections = new List<Vector2>()
     {
         new Vector2(1, 0),
         new Vector2(0, 1),
