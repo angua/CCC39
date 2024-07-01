@@ -182,13 +182,13 @@ public class PathStep
         var maxY = lawn.Height - 1;
 
         // find objects in same row / column
-        var objectsOnX = ObjectsOnLawn.Where(r => r.UpperLeftCornerY <= startY && r.LowerRightCornerY >= startY);
-        var objectsOnY = ObjectsOnLawn.Where(r => r.UpperLeftCornerX <= startX && r.LowerRightCornerX >= startX);
-
-        var objectsLeft = objectsOnX.Where(r => r.LowerRightCornerX < startX);
-        var objectsRight = objectsOnX.Where(r => r.UpperLeftCornerX > startX);
-        var objectsAbove = objectsOnY.Where(r => r.LowerRightCornerY < startY);
-        var objectsBelow = objectsOnY.Where(r => r.UpperLeftCornerY > startY);
+        var objectsOnX = ObjectsOnLawn.Where(r => r.UpperLeftCornerY <= startY && r.LowerRightCornerY >= startY).ToList();
+        var objectsOnY = ObjectsOnLawn.Where(r => r.UpperLeftCornerX <= startX && r.LowerRightCornerX >= startX).ToList();
+                                                                                                                
+        var objectsLeft = objectsOnX.Where(r => r.LowerRightCornerX < startX).ToList();
+        var objectsRight = objectsOnX.Where(r => r.UpperLeftCornerX > startX).ToList();
+        var objectsAbove = objectsOnY.Where(r => r.LowerRightCornerY < startY).ToList();
+        var objectsBelow = objectsOnY.Where(r => r.UpperLeftCornerY > startY).ToList();
 
 
         // objects closest to start position in all 4 directions

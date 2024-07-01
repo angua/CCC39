@@ -40,8 +40,6 @@ void DoPerformanceTest()
     var slowTiming = solver.PerformanceTest(slowLawn);
     Console.WriteLine(slowTiming);
 
-
-
 }
 
 void WriteOutputs(int level)
