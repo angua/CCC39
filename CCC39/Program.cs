@@ -2,8 +2,29 @@
 
 var level = 5;
 
-WriteOutputs(level);
-    
+//WriteOutputs(level);
+
+DoPerformanceTest();
+
+void DoPerformanceTest()
+{
+    var solver = new Solver();
+    var level = 4;
+    var inputFileNumber = 1;
+
+    var inputfilename = $"../../../../Files/level{level}_{inputFileNumber}.in";
+    var lines = File.ReadAllLines(inputfilename).ToList();
+
+    var timing = solver.PerformanceTest(lines);
+
+    foreach (var time in timing)
+    {
+        Console.WriteLine(time);
+    }
+    Console.WriteLine($"Total time: {timing.Sum()}");
+
+}
+
 void WriteOutputs(int level)
 {
     var solver = new Solver();

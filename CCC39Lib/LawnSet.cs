@@ -50,6 +50,11 @@ public class LawnSet
 
             case 4:
                 return ParseLawnsFromMaps(lines);
+            case 5:
+                return ParseLawnsFromMaps(lines);
+            case 6:
+                return ParseLawnsFromMaps(lines);
+
 
             default:
                 return new List<Lawn>();

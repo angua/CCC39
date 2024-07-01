@@ -314,4 +314,24 @@ public class Solver
     }
 
 
+    /// <summary>
+    /// Solve for level 4 or 5 and given file, output elapsed time in ms
+    /// </summary>
+    /// <param name="lines"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public List<long> PerformanceTest(List<string> lines)
+    {
+        var times = new List<long>();
+
+        var lawnSet = new LawnSet(4, lines);
+
+        foreach (var lawn in lawnSet.Lawns)
+        {
+            FindPath(lawn);
+            times.Add(Timing);
+            lawn.ClearPath();
+        }
+        return times;
+    }
 }

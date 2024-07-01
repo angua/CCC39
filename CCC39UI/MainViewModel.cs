@@ -103,6 +103,8 @@ class MainViewModel : ViewModelBase
         ShowPathFinding = new RelayCommand(CanShowPathFinding, DoShowPathFinding);
         FindPathNextStep = new RelayCommand(CanFindPathNextStep, DoFindPathNextStep);
         ClearPath = new RelayCommand(CanClearPath, DoClearPath);
+
+
     }
 
     public RelayCommand PreviousInput { get; }
