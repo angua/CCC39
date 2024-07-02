@@ -55,7 +55,9 @@ void WriteOutputs(int level)
         var outputfilename = $"../../../../Files/level{level}_{inputFileNumber}.out";
         using var outputWriter = new StreamWriter(outputfilename);
 
+        Console.WriteLine($"Level {level} File {inputFileNumber}");
         var output = solver.Solve(level, lines);
+        Console.WriteLine($"Calculation took {solver.TotalTiming} ms.");
 
         outputWriter.Write(output);
     }

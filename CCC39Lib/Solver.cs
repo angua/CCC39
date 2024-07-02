@@ -15,6 +15,7 @@ public class Solver
     private static Vector2 _down = new Vector2(0, 1);
 
     public long Timing { get; private set; }
+    public long TotalTiming { get; private set; }
 
     public string Solve(int level, List<string> lines)
     {
@@ -173,6 +174,7 @@ public class Solver
 
     private string SolveLevel4(List<string> lines)
     {
+        long totalTime = 0;
         var fullResult = new StringBuilder();
 
         var lawnSet = new LawnSet(4, lines);
@@ -183,7 +185,8 @@ public class Solver
         {
             FindPath(lawn);
             fullResult.AppendLine(lawn.InstructionString);
-            Console.WriteLine($"Lawn {lawnNum++}");
+            // Console.WriteLine($"Lawn {lawnNum++}");
+            totalTime += Timing;
             lawn.ClearPath();
         }
 
