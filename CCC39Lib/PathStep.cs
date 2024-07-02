@@ -196,29 +196,36 @@ public class PathStep
 
         if (objectsLeft.Count() > 0)
         {
-            var border = objectsLeft.Max(r => r.LowerRightCornerX);
-            var obstacle = objectsLeft.First(r => r.LowerRightCornerX == border);
+            var orderedObjects = objectsLeft.OrderByDescending(r => r.LowerRightCornerX);
+            var obstacle = orderedObjects.First();
+            var border = obstacle.LowerRightCornerX;
             obstacles.Add(obstacle);
             minX = border + 1;
         }
         if (objectsRight.Count() > 0)
         {
-            var border = objectsRight.Min(r => r.UpperLeftCornerX);
-            var obstacle = objectsRight.First(r => r.UpperLeftCornerX == border);
+            var orderedObjects = objectsRight.OrderBy(r => r.UpperLeftCornerX);
+            var obstacle = orderedObjects.First();
+            var border = obstacle.UpperLeftCornerX;
+
             obstacles.Add(obstacle);
             maxX = border - 1;
         }
         if (objectsAbove.Count() > 0)
         {
-            var border = objectsAbove.Max(r => r.LowerRightCornerY);
-            var obstacle = objectsAbove.First(r => r.LowerRightCornerY == border);
+            var orderedObjects = objectsAbove.OrderByDescending(r => r.LowerRightCornerY);
+            var obstacle = orderedObjects.First();
+            var border = obstacle.LowerRightCornerY;
+
             obstacles.Add(obstacle);
             minY = border + 1;
         }
         if (objectsBelow.Count() > 0)
         {
-            var border = objectsBelow.Min(r => r.UpperLeftCornerY);
-            var obstacle = objectsBelow.First(r => r.UpperLeftCornerY == border);
+            var orderedObjects = objectsBelow.OrderBy(r => r.UpperLeftCornerY);
+            var obstacle = orderedObjects.First();
+            var border = obstacle.UpperLeftCornerY;
+
             obstacles.Add(obstacle);
             maxY = border - 1;
         }
