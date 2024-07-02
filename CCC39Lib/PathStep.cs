@@ -182,13 +182,13 @@ public class PathStep
         var maxY = lawn.Height - 1;
 
         // find objects in same row / column
-        var objectsOnX = ObjectsOnLawn.Where(r => r.UpperLeftCornerY <= startY && r.LowerRightCornerY >= startY).ToList();
-        var objectsOnY = ObjectsOnLawn.Where(r => r.UpperLeftCornerX <= startX && r.LowerRightCornerX >= startX).ToList();
+        var objectsOnX = ObjectsOnLawn.Where(r => r.TopY <= startY && r.BottomY >= startY).ToList();
+        var objectsOnY = ObjectsOnLawn.Where(r => r.LeftX <= startX && r.RightX >= startX).ToList();
                                                                                                                 
-        var objectsLeft = objectsOnX.Where(r => r.LowerRightCornerX < startX).ToList();
-        var objectsRight = objectsOnX.Where(r => r.UpperLeftCornerX > startX).ToList();
-        var objectsAbove = objectsOnY.Where(r => r.LowerRightCornerY < startY).ToList();
-        var objectsBelow = objectsOnY.Where(r => r.UpperLeftCornerY > startY).ToList();
+        var objectsLeft = objectsOnX.Where(r => r.RightX < startX).ToList();
+        var objectsRight = objectsOnX.Where(r => r.LeftX > startX).ToList();
+        var objectsAbove = objectsOnY.Where(r => r.BottomY < startY).ToList();
+        var objectsBelow = objectsOnY.Where(r => r.TopY > startY).ToList();
 
 
         // objects closest to start position in all 4 directions
@@ -196,42 +196,42 @@ public class PathStep
 
         if (objectsLeft.Count() > 0)
         {
-            var orderedObjects = objectsLeft.OrderByDescending(r => r.LowerRightCornerX);
+            var orderedObjects = objectsLeft.OrderByDescending(r => r.RightX);
             var obstacle = orderedObjects.First();
-            var border = obstacle.LowerRightCornerX;
+            var border = obstacle.RightX;
             obstacles.Add(obstacle);
             minX = border + 1;
         }
         if (objectsRight.Count() > 0)
         {
-            var orderedObjects = objectsRight.OrderBy(r => r.UpperLeftCornerX);
+            var orderedObjects = objectsRight.OrderBy(r => r.LeftX);
             var obstacle = orderedObjects.First();
-            var border = obstacle.UpperLeftCornerX;
+            var border = obstacle.LeftX;
 
             obstacles.Add(obstacle);
             maxX = border - 1;
         }
         if (objectsAbove.Count() > 0)
         {
-            var orderedObjects = objectsAbove.OrderByDescending(r => r.LowerRightCornerY);
+            var orderedObjects = objectsAbove.OrderByDescending(r => r.BottomY);
             var obstacle = orderedObjects.First();
-            var border = obstacle.LowerRightCornerY;
+            var border = obstacle.BottomY;
 
             obstacles.Add(obstacle);
             minY = border + 1;
         }
         if (objectsBelow.Count() > 0)
         {
-            var orderedObjects = objectsBelow.OrderBy(r => r.UpperLeftCornerY);
+            var orderedObjects = objectsBelow.OrderBy(r => r.TopY);
             var obstacle = orderedObjects.First();
-            var border = obstacle.UpperLeftCornerY;
+            var border = obstacle.TopY;
 
             obstacles.Add(obstacle);
             maxY = border - 1;
         }
 
         // rectangle spanning area between obstacles in row / column
-        var borderRectangle = new Rectangle(new Vector2(minX, minY), new Vector2(maxX, maxY));
+        var borderRectangle = new Rectangle(minX, maxX, minY, maxY);
 
         // obstacles inside this area
         for (int i = 0; i < ObjectsOnLawn.Count; i++)
@@ -261,24 +261,24 @@ public class PathStep
         for (int i = 0; i < obstacles.Count; i++)
         {
             var obstacle = obstacles[i];
-            if (obstacle.UpperLeftCornerX > 0)
+            if (obstacle.LeftX > 0)
             {
-                edgeX.Add(obstacle.UpperLeftCornerX - 1);
+                edgeX.Add(obstacle.LeftX - 1);
             }
-            edgeX.Add(obstacle.UpperLeftCornerX);
-            if (obstacle.LowerRightCornerX < lawn.Width - 1)
+            edgeX.Add(obstacle.LeftX);
+            if (obstacle.RightX < lawn.Width - 1)
             {
-                edgeX.Add(obstacle.LowerRightCornerX + 1);
+                edgeX.Add(obstacle.RightX + 1);
             }
 
-            if (obstacle.UpperLeftCornerY > 0)
+            if (obstacle.TopY > 0)
             {
-                edgeY.Add(obstacle.UpperLeftCornerY - 1);
+                edgeY.Add(obstacle.TopY - 1);
             }
-            edgeY.Add((int)obstacle.UpperLeftCornerY);
-            if (obstacle.LowerRightCornerY < lawn.Height - 1)
+            edgeY.Add((int)obstacle.TopY);
+            if (obstacle.BottomY < lawn.Height - 1)
             {
-                edgeY.Add(obstacle.LowerRightCornerY + 1);
+                edgeY.Add(obstacle.BottomY + 1);
             }
         }
 
@@ -287,12 +287,15 @@ public class PathStep
         {
             foreach (var yPosition in edgeY)
             {
-                var rect = new PathRectangle(new Vector2(Math.Min(xPosition, startX), Math.Min(yPosition, startY)),
-                                             new Vector2(Math.Max(xPosition, startX), Math.Max(yPosition, startY)))
+                var leftX = Math.Min(xPosition, startX);
+                var rightX = Math.Max(xPosition, startX);
+                var topY = Math.Min(yPosition, startY);
+                var bottomY = Math.Max(yPosition, startY);
+
+                var rect = new PathRectangle(leftX, rightX, topY, bottomY)
                 {
                     StartPosition = startPosition
                 };
-
 
                 // obstacles inside this rectangle, don't use
                 var use = true;

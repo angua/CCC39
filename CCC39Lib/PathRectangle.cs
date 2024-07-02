@@ -7,6 +7,10 @@ public class PathRectangle : Rectangle
     public PathRectangle(Vector2 upperLeftCorner, Vector2 lowerRightCorner) : base(upperLeftCorner, lowerRightCorner)
     { }
 
+    public PathRectangle(int leftX, int rightX, int topY, int bottomY) : base(leftX, rightX, topY, bottomY)
+    { }
+
+
     public PathRectangle(PathRectangle rect) : base(rect)
     {
         StartPosition = rect.StartPosition;
@@ -65,25 +69,25 @@ public class PathRectangle : Rectangle
         if (FirstMoveDir.X < 0)
         {
             // move left first
-            FirstOppositePosition = new Vector2(UpperLeftCornerX, StartPosition.Y);
+            FirstOppositePosition = new Vector2(LeftX, StartPosition.Y);
             _firstMoveCount = Width - 1;
         }
         else if (FirstMoveDir.X > 0)
         {
             // move right first
-            FirstOppositePosition = new Vector2(LowerRightCornerX, StartPosition.Y);
+            FirstOppositePosition = new Vector2(RightX, StartPosition.Y);
             _firstMoveCount = Width - 1;
         }
         else if (FirstMoveDir.Y < 0)
         {
             // move up first
-            FirstOppositePosition = new Vector2(StartPosition.X, UpperLeftCornerY);
+            FirstOppositePosition = new Vector2(StartPosition.X, TopY);
             _firstMoveCount = Height - 1;
         }
         else if (FirstMoveDir.Y > 0)
         {
             // move down first
-            FirstOppositePosition = new Vector2(StartPosition.X, LowerRightCornerY);
+            FirstOppositePosition = new Vector2(StartPosition.X, BottomY);
             _firstMoveCount = Height - 1;
         }
         else
@@ -100,7 +104,7 @@ public class PathRectangle : Rectangle
             // after an odd number of meandering back and forth, the end position is at the opposite x position from the start
             // after even number, same x position as start
             var endX = Height % 2 != 0 ? FirstOppositePosition.X : StartPosition.X;
-            var endY = StartPosition.Y == UpperLeftCornerY ? LowerRightCornerY : UpperLeftCornerY;
+            var endY = StartPosition.Y == TopY ? BottomY : TopY;
 
             EndPosition = new Vector2(endX, endY);
             _secondMoveCount = Height - 1;
@@ -109,7 +113,7 @@ public class PathRectangle : Rectangle
         {
             // move in y first, the meander in x
             var endY = Width % 2 != 0 ? FirstOppositePosition.Y : StartPosition.Y;
-            var endX = StartPosition.X == UpperLeftCornerX ? LowerRightCornerX : UpperLeftCornerX;
+            var endX = StartPosition.X == LeftX ? RightX : LeftX;
             EndPosition = new Vector2(endX, endY);
             _secondMoveCount = Width - 1;
         }

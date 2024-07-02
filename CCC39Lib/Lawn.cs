@@ -85,9 +85,8 @@ public class Lawn
 
         foreach (var pos in TreePositions)
         {
-            TreeRectangles.Add(new Rectangle(pos, pos));
+            TreeRectangles.Add(new Rectangle((int)pos.X, (int)pos.X, (int)pos.Y, (int)pos.Y));
         }
-
 
         return i;
     }

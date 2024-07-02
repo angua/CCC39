@@ -6,21 +6,29 @@ public class Rectangle
 {
     public Rectangle(Vector2 upperLeftCorner, Vector2 lowerRightCorner)
     {
-        UpperLeftCorner = upperLeftCorner;
-        LowerRightCorner = lowerRightCorner;
+        LeftX = (int)upperLeftCorner.X;
+        TopY = (int)upperLeftCorner.Y;
+        RightX = (int)lowerRightCorner.X;
+        BottomY = (int)lowerRightCorner.Y;
 
         SetProperties();
     }
 
+    public Rectangle(int leftX, int rightX, int topY, int bottomY)
+    {
+        LeftX = leftX;
+        TopY = topY;
+        RightX = rightX;
+        BottomY = bottomY;
+
+        SetProperties();
+    }
+
+
     private void SetProperties()
     {
-        UpperLeftCornerX = (int)UpperLeftCorner.X;
-        UpperLeftCornerY = (int)UpperLeftCorner.Y;
-        LowerRightCornerX = (int)LowerRightCorner.X;
-        LowerRightCornerY = (int)LowerRightCorner.Y;
-
-        Width = LowerRightCornerX - UpperLeftCornerX + 1;
-        Height = LowerRightCornerY - UpperLeftCornerY + 1;
+        Width = RightX - LeftX + 1;
+        Height = BottomY - TopY + 1;
 
         Area = Width * Height;
     }
@@ -28,42 +36,41 @@ public class Rectangle
 
     public Rectangle(Rectangle rect)
     {
-        UpperLeftCorner = rect.UpperLeftCorner;
-        LowerRightCorner = rect.LowerRightCorner;
+        LeftX = rect.LeftX;
+        TopY = rect.TopY;
+        RightX = rect.RightX;
+        BottomY = rect.BottomY;
 
-        SetProperties();
+        Width = rect.Width;
+        Height = rect.Height;
+
+        Area = rect.Area;
     }
 
-    public Vector2 UpperLeftCorner { get; private set; }
-    public Vector2 LowerRightCorner { get; private set; }
-
-    public int UpperLeftCornerX { get; private set; }
-    public int UpperLeftCornerY { get; private set; }
-    public int LowerRightCornerX { get; private set; }
-    public int LowerRightCornerY { get; private set; }
+    public int LeftX { get; private set; }
+    public int TopY { get; private set; }
+    public int RightX { get; private set; }
+    public int BottomY { get; private set; }
 
     public int Width { get; private set; }
     public int Height { get; private set; }
     public int Area { get; private set; }
 
 
-
     internal bool Intersect(Vector2 position)
     {
-        return position.X >= UpperLeftCornerX &&
-               position.X <= LowerRightCornerX &&
-               position.Y >= UpperLeftCornerY &&
-               position.Y <= LowerRightCornerY;
+        return position.X >= LeftX &&
+               position.X <= RightX &&
+               position.Y >= TopY &&
+               position.Y <= BottomY;
     }
 
     internal bool Intersect(Rectangle rec2)
     {
-        return UpperLeftCornerX <= rec2.LowerRightCornerX &&
-            LowerRightCornerX >= rec2.UpperLeftCornerX &&
-            UpperLeftCornerY <= rec2.LowerRightCornerY &&
-            LowerRightCornerY >= rec2.UpperLeftCornerY;
+        return LeftX <= rec2.RightX &&
+            RightX >= rec2.LeftX &&
+            TopY <= rec2.BottomY &&
+            BottomY >= rec2.TopY;
     }
-
-
 
 }
