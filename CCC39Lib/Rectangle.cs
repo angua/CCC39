@@ -4,12 +4,12 @@ namespace CCC39Lib;
 
 public class Rectangle
 {
-    public Rectangle(Vector2 upperLeftCorner, Vector2 lowerRightCorner)
+    public Rectangle(Vector2 vector1, Vector2 vector2)
     {
-        LeftX = (int)upperLeftCorner.X;
-        TopY = (int)upperLeftCorner.Y;
-        RightX = (int)lowerRightCorner.X;
-        BottomY = (int)lowerRightCorner.Y;
+        LeftX = (int)(Math.Min(vector1.X, vector2.X));
+        RightX = (int)(Math.Max(vector1.X, vector2.X));
+        TopY = (int)(Math.Min(vector1.Y, vector2.Y));
+        BottomY = (int)(Math.Max(vector1.Y, vector2.Y));
 
         SetProperties();
     }

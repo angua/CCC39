@@ -4,7 +4,7 @@ namespace CCC39Lib;
 
 public class PathRectangle : Rectangle
 {
-    public PathRectangle(Vector2 upperLeftCorner, Vector2 lowerRightCorner) : base(upperLeftCorner, lowerRightCorner)
+    public PathRectangle(Vector2 vector1, Vector2 vector2) : base(vector1, vector2)
     { }
 
     public PathRectangle(int leftX, int rightX, int topY, int bottomY) : base(leftX, rightX, topY, bottomY)

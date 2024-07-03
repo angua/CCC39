@@ -174,6 +174,8 @@ public class PathStep
         var startX = (int)startPosition.X;
         var startY = (int)startPosition.Y;
 
+        var edgePositions = new HashSet<Vector2>();
+
         var rectangles = new List<PathRectangle>();
 
         var minX = 0;
@@ -184,7 +186,7 @@ public class PathStep
         // find objects in same row / column
         var objectsOnX = ObjectsOnLawn.Where(r => r.TopY <= startY && r.BottomY >= startY);
         var objectsOnY = ObjectsOnLawn.Where(r => r.LeftX <= startX && r.RightX >= startX);
-                                                                                                                
+
         var objectsLeft = objectsOnX.Where(r => r.RightX < startX);
         var objectsRight = objectsOnX.Where(r => r.LeftX > startX);
         var objectsAbove = objectsOnY.Where(r => r.BottomY < startY);
@@ -197,36 +199,74 @@ public class PathStep
         {
             var orderedObjects = objectsLeft.OrderByDescending(r => r.RightX);
             var obstacle = orderedObjects.First();
-            var border = obstacle.RightX;
-            obstacles.Add(obstacle);
-            minX = border + 1;
+            minX = obstacle.RightX + 1;
+
+            edgePositions.Add(new Vector2(minX, obstacle.TopY));
+            edgePositions.Add(new Vector2(minX, obstacle.BottomY));
+
+            if (obstacle.TopY > 0)
+            {
+                edgePositions.Add(new Vector2(minX, obstacle.TopY - 1));
+            }
+            if (obstacle.BottomY < lawn.Height - 1)
+            {
+                edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
+            }
         }
         if (objectsRight.Count() > 0)
         {
             var orderedObjects = objectsRight.OrderBy(r => r.LeftX);
             var obstacle = orderedObjects.First();
-            var border = obstacle.LeftX;
+            maxX = obstacle.LeftX - 1;
 
-            obstacles.Add(obstacle);
-            maxX = border - 1;
+            edgePositions.Add(new Vector2(maxX, obstacle.TopY));
+            edgePositions.Add(new Vector2(maxX, obstacle.BottomY));
+
+            if (obstacle.TopY > 0)
+            {
+                edgePositions.Add(new Vector2(minX, obstacle.TopY - 1));
+            }
+            if (obstacle.BottomY < lawn.Height - 1)
+            {
+                edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
+            }
+
         }
         if (objectsAbove.Count() > 0)
         {
             var orderedObjects = objectsAbove.OrderByDescending(r => r.BottomY);
             var obstacle = orderedObjects.First();
-            var border = obstacle.BottomY;
+            minY = obstacle.BottomY + 1;
 
-            obstacles.Add(obstacle);
-            minY = border + 1;
+            edgePositions.Add(new Vector2(obstacle.LeftX, minY));
+            edgePositions.Add(new Vector2(obstacle.RightX, minY));
+
+            if (obstacle.LeftX > 0)
+            {
+                edgePositions.Add(new Vector2(obstacle.LeftX - 1, minY));
+            }
+            if (obstacle.RightX < lawn.Width - 1)
+            {
+                edgePositions.Add(new Vector2(obstacle.RightX + 1, minY));
+            }
         }
         if (objectsBelow.Count() > 0)
         {
             var orderedObjects = objectsBelow.OrderBy(r => r.TopY);
             var obstacle = orderedObjects.First();
-            var border = obstacle.TopY;
+            maxY = obstacle.TopY - 1;
 
-            obstacles.Add(obstacle);
-            maxY = border - 1;
+            edgePositions.Add(new Vector2(obstacle.LeftX, maxY));
+            edgePositions.Add(new Vector2(obstacle.RightX, maxY));
+
+            if (obstacle.LeftX > 0)
+            {
+                edgePositions.Add(new Vector2(obstacle.LeftX - 1, maxY));
+            }
+            if (obstacle.RightX < lawn.Width - 1)
+            {
+                edgePositions.Add(new Vector2(obstacle.RightX + 1, maxY));
+            }
         }
 
         // rectangle spanning area between obstacles in row / column
@@ -265,6 +305,7 @@ public class PathStep
                 edgeX.Add(obstacle.LeftX - 1);
             }
             edgeX.Add(obstacle.LeftX);
+            edgeX.Add(obstacle.RightX);
             if (obstacle.RightX < lawn.Width - 1)
             {
                 edgeX.Add(obstacle.RightX + 1);
@@ -274,7 +315,8 @@ public class PathStep
             {
                 edgeY.Add(obstacle.TopY - 1);
             }
-            edgeY.Add((int)obstacle.TopY);
+            edgeY.Add(obstacle.TopY);
+            edgeY.Add(obstacle.BottomY);
             if (obstacle.BottomY < lawn.Height - 1)
             {
                 edgeY.Add(obstacle.BottomY + 1);
@@ -286,74 +328,75 @@ public class PathStep
         {
             foreach (var yPosition in edgeY)
             {
-                var leftX = Math.Min(xPosition, startX);
-                var rightX = Math.Max(xPosition, startX);
-                var topY = Math.Min(yPosition, startY);
-                var bottomY = Math.Max(yPosition, startY);
-
-                var rect = new PathRectangle(leftX, rightX, topY, bottomY)
-                {
-                    StartPosition = startPosition
-                };
-
-                // obstacles inside this rectangle, don't use
-                var use = true;
-                for (int i = 0; i < ObjectsOnLawn.Count; i++)
-                {
-                    var objectOnLawn = ObjectsOnLawn[i];
-                    if (rect.Intersect(objectOnLawn))
-                    {
-                        use = false;
-                        break;
-                    }
-                }
-                if (!use)
-                {
-                    continue;
-                }
-
-                var xVector = xPosition - startX;
-                var yVector = yPosition - startY;
-
-                var xDir = xVector == 0 ? new Vector2(0, 0) : new Vector2(xVector / Math.Abs(xVector), 0);
-                var yDir = yVector == 0 ? new Vector2(0, 0) : new Vector2(0, yVector / Math.Abs(yVector));
-
-                if (xVector != 0 && yVector != 0)
-                {
-                    var rect2 = new PathRectangle(rect);
-
-                    rect.FirstMoveDir = xDir;
-                    rect.SecondMoveDir = yDir;
-
-                    rect2.FirstMoveDir = yDir;
-                    rect2.SecondMoveDir = xDir;
-
-                    // try meandering in both directions
-                    rect.GetEndPosition();
-                    rect2.GetEndPosition();
-
-                    rectangles.Add(rect);
-
-                    if (rect2.EndPosition != rect.EndPosition)
-                    {
-                        rectangles.Add(rect2);
-                    }
-                }
-                else if (xVector != 0)
-                {
-                    rect.FirstMoveDir = xDir;
-                    rect.GetEndPosition();
-                    rectangles.Add(rect);
-                }
-                else
-                {
-                    rect.FirstMoveDir = yDir;
-                    rect.GetEndPosition();
-                    rectangles.Add(rect);
-                }
-
+                edgePositions.Add(new Vector2(xPosition, yPosition));
             }
         }
+
+        foreach (var pos in edgePositions)
+        {
+            var rect = new PathRectangle(startPosition, pos)
+            {
+                StartPosition = startPosition
+            };
+
+            // obstacles inside this rectangle, don't use
+            var use = true;
+            for (int i = 0; i < ObjectsOnLawn.Count; i++)
+            {
+                var objectOnLawn = ObjectsOnLawn[i];
+                if (rect.Intersect(objectOnLawn))
+                {
+                    use = false;
+                    break;
+                }
+            }
+            if (!use)
+            {
+                continue;
+            }
+
+            var xVector = pos.X - startX;
+            var yVector = pos.Y - startY;
+
+            var xDir = xVector == 0 ? new Vector2(0, 0) : new Vector2(xVector / Math.Abs(xVector), 0);
+            var yDir = yVector == 0 ? new Vector2(0, 0) : new Vector2(0, yVector / Math.Abs(yVector));
+
+            if (xVector != 0 && yVector != 0)
+            {
+                var rect2 = new PathRectangle(rect);
+
+                rect.FirstMoveDir = xDir;
+                rect.SecondMoveDir = yDir;
+
+                rect2.FirstMoveDir = yDir;
+                rect2.SecondMoveDir = xDir;
+
+                // try meandering in both directions
+                rect.GetEndPosition();
+                rect2.GetEndPosition();
+
+                rectangles.Add(rect);
+
+                if (rect2.EndPosition != rect.EndPosition)
+                {
+                    rectangles.Add(rect2);
+                }
+            }
+            else if (xVector != 0)
+            {
+                rect.FirstMoveDir = xDir;
+                rect.GetEndPosition();
+                rectangles.Add(rect);
+            }
+            else
+            {
+                rect.FirstMoveDir = yDir;
+                rect.GetEndPosition();
+                rectangles.Add(rect);
+            }
+
+        }
+
 
         // sort by area (try rectangles with larger area first)
         return rectangles.OrderByDescending(r => r.Area).ToList();
