@@ -26,6 +26,7 @@ public class Solver
             3 => SolveLevel3(lines),
             4 => SolveLevel4(lines),
             5 => SolveLevel4(lines),
+            6 => SolveLevel4(lines, true),
             _ => throw new InvalidOperationException(($"Level {level} not supported."))
         };
     }
@@ -172,7 +173,7 @@ public class Solver
     }
 
 
-    private string SolveLevel4(List<string> lines)
+    private string SolveLevel4(List<string> lines, bool useCycle = false)
     {
         long totalTime = 0;
         var fullResult = new StringBuilder();
@@ -183,7 +184,7 @@ public class Solver
 
         foreach (var lawn in lawnSet.Lawns)
         {
-            FindPath(lawn);
+            FindPath(lawn, useCycle);
             fullResult.AppendLine(lawn.InstructionString);
             // Console.WriteLine($"Lawn {lawnNum++}");
             totalTime += Timing;
@@ -194,19 +195,19 @@ public class Solver
     }
 
 
-    public void FindPath(Lawn lawn)
+    public void FindPath(Lawn lawn, bool useCycle = false)
     {
         var watch = new Stopwatch();
         watch.Start();
         while (!lawn.MowingFinished)
         {
-            FindPathNextStep(lawn);
+            FindPathNextStep(lawn, useCycle);
         }
         watch.Stop();
         Timing = watch.ElapsedMilliseconds;
     }
 
-    public void FindPathNextStep(Lawn lawn)
+    public void FindPathNextStep(Lawn lawn, bool useCycle = false)
     {
         lawn.PathStepsCount++;
 
@@ -224,10 +225,11 @@ public class Solver
 
                 foreach (var rectangle in rectangles)
                 {
-                    var pathstep = PathStep.CreatePathStep(lawn, null, rectangle);
+                    var pathstep = PathStep.CreatePathStep(lawn, null, rectangle, useCycle);
                     if (pathstep.IsValid)
                     {
                         lawn.StartPathStep.NextSteps.Add(pathstep);
+                        pathstep.MowingStart = pathstep.PathingRectangle.StartPosition;
                     }
                 }
 
@@ -235,19 +237,19 @@ public class Solver
         }
         else
         {
-            DoNextStep(lawn);
+            DoNextStep(lawn, useCycle);
         }
 
     }
 
-    private void DoNextStep(Lawn lawn)
+    private void DoNextStep(Lawn lawn, bool useCycle = false)
     {
         if (lawn.MowingFinished)
         {
             return;
         }
 
-        lawn.StartPathStep.ProcessNextStep(lawn);
+        lawn.StartPathStep.ProcessNextStep(lawn, useCycle);
 
         if (lawn.StartPathStep.MowingFinished)
         {

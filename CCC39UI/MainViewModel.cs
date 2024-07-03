@@ -135,7 +135,13 @@ class MainViewModel : ViewModelBase
     }
     public void DoFindPath()
     {
-        _solver.FindPath(CurrentLawn);
+        var useCycles = false;
+        if (CurrentLawnSet.Level == 6)
+        {
+            useCycles = true;
+        }
+
+        _solver.FindPath(CurrentLawn, useCycles);
         _solver.CreatePathfromSteps(CurrentLawn);
         LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
         StepCount = CurrentLawn.PathStepsCount;

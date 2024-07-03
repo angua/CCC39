@@ -15,6 +15,7 @@ public class PathStep
 
     public PathStep? CorrectNextStep { get; set; }
 
+    public Vector2 MowingStart { get; set; }
 
     public List<Rectangle> ObjectsOnLawn { get; set; } = new();
 
@@ -37,14 +38,14 @@ public class PathStep
         PathingRectangle.CreatePath();
     }
 
-    internal bool ProcessNextStep(Lawn lawn)
+    internal bool ProcessNextStep(Lawn lawn, bool useCycle = false)
     {
         if (NextSteps.Count == 0)
         {
             // step was just created, need to create next steps from here
             foreach (var rect in NextRectangles)
             {
-                var nextStep = CreatePathStep(lawn, this, rect);
+                var nextStep = CreatePathStep(lawn, this, rect, useCycle);
                 if (nextStep.MowingFinished)
                 {
                     MowingFinished = true;
@@ -67,7 +68,7 @@ public class PathStep
             var stepsToBeRemoved = new List<PathStep>();
             foreach (var nextStep in NextSteps)
             {
-                if (!nextStep.ProcessNextStep(lawn))
+                if (!nextStep.ProcessNextStep(lawn, useCycle))
                 {
                     stepsToBeRemoved.Add(nextStep);
                 }
@@ -91,7 +92,7 @@ public class PathStep
         return true;
     }
 
-    public static PathStep CreatePathStep(Lawn lawn, PathStep? previousPathStep, PathRectangle rectangle)
+    public static PathStep CreatePathStep(Lawn lawn, PathStep? previousPathStep, PathRectangle rectangle, bool useCycle = false)
     {
         var pathstep = new PathStep()
         {
@@ -109,15 +110,37 @@ public class PathStep
             pathstep.ObjectsOnLawn = new List<Rectangle>(previousPathStep.ObjectsOnLawn);
             pathstep.CoveredArea = previousPathStep.CoveredArea + rectangle.Area;
             pathstep.PathStepCount = previousPathStep.PathStepCount + 1;
+            pathstep.MowingStart = previousPathStep.MowingStart;
         }
         pathstep.ObjectsOnLawn.Add(rectangle);
 
         if (pathstep.CoveredArea == lawn.Fields)
         {
             // mowing finished
-            pathstep.MowingFinished = true;
-            pathstep.IsValid = true;
-            return pathstep;
+            if (useCycle)
+            {
+                for (int i = 0; i < MathUtils.OrthogonalDirections.Count; i++)
+                {
+                    var pos = rectangle.EndPosition + MathUtils.OrthogonalDirections[i];
+                    if (pos.Equals(pathstep.MowingStart))
+                    {
+                        // end next to start position
+                        pathstep.MowingFinished = true;
+                        pathstep.IsValid = true;
+                        return pathstep;
+                    }
+                }
+                // end not next to start
+                pathstep.IsValid = false;
+                return pathstep;
+            }
+            else
+            {
+                // mowing finished
+                pathstep.MowingFinished = true;
+                pathstep.IsValid = true;
+                return pathstep;
+            }
         }
 
         pathstep.NextStartPositions = pathstep.GetNextStartPositions(lawn, rectangle);
