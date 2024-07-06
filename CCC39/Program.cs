@@ -1,7 +1,7 @@
 ﻿using CCC39Lib;
 using CCC39UI;
 
-var level = 5;
+var level = 7;
 
 //WriteOutputs(level);
 

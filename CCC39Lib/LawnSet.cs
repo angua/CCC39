@@ -54,6 +54,8 @@ public class LawnSet
                 return ParseLawnsFromMaps(lines);
             case 6:
                 return ParseLawnsFromMaps(lines);
+            case 7:
+                return ParseLawnsFromMaps(lines);
 
 
             default:

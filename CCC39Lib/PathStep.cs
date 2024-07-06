@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using Common;
 
@@ -14,6 +15,9 @@ public class PathStep
     public List<PathStep> NextSteps { get; set; } = new();
 
     public PathStep? CorrectNextStep { get; set; }
+
+    public PathStep? PreviousStep { get; set; }
+
 
     public Vector2 MowingStart { get; set; }
 
@@ -107,6 +111,7 @@ public class PathStep
         }
         else
         {
+            pathstep.PreviousStep = previousPathStep;
             pathstep.ObjectsOnLawn = new List<Rectangle>(previousPathStep.ObjectsOnLawn);
             pathstep.CoveredArea = previousPathStep.CoveredArea + rectangle.Area;
             pathstep.PathStepCount = previousPathStep.PathStepCount + 1;
@@ -154,7 +159,7 @@ public class PathStep
         else
         {
             // flood fill from next start position to check for unreachable parts
-            if (false)
+            if (lawn.TreePositions.Count > 1 && pathstep.PathStepCount >= 2)
             {
                 var reachableArea = pathstep.GetReachableArea(lawn, pathstep.NextStartPositions.First());
                 if (pathstep.CoveredArea + reachableArea < lawn.Fields)
@@ -224,17 +229,10 @@ public class PathStep
             var obstacle = orderedObjects.First();
             minX = obstacle.RightX + 1;
 
+            edgePositions.Add(new Vector2(minX, obstacle.TopY - 1));
             edgePositions.Add(new Vector2(minX, obstacle.TopY));
             edgePositions.Add(new Vector2(minX, obstacle.BottomY));
-
-            if (obstacle.TopY > 0)
-            {
-                edgePositions.Add(new Vector2(minX, obstacle.TopY - 1));
-            }
-            if (obstacle.BottomY < lawn.Height - 1)
-            {
-                edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
-            }
+            edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
         }
         if (objectsRight.Count() > 0)
         {
@@ -242,18 +240,10 @@ public class PathStep
             var obstacle = orderedObjects.First();
             maxX = obstacle.LeftX - 1;
 
+            edgePositions.Add(new Vector2(minX, obstacle.TopY - 1));
             edgePositions.Add(new Vector2(maxX, obstacle.TopY));
             edgePositions.Add(new Vector2(maxX, obstacle.BottomY));
-
-            if (obstacle.TopY > 0)
-            {
-                edgePositions.Add(new Vector2(minX, obstacle.TopY - 1));
-            }
-            if (obstacle.BottomY < lawn.Height - 1)
-            {
-                edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
-            }
-
+            edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
         }
         if (objectsAbove.Count() > 0)
         {
@@ -261,17 +251,10 @@ public class PathStep
             var obstacle = orderedObjects.First();
             minY = obstacle.BottomY + 1;
 
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, minY));
             edgePositions.Add(new Vector2(obstacle.LeftX, minY));
             edgePositions.Add(new Vector2(obstacle.RightX, minY));
-
-            if (obstacle.LeftX > 0)
-            {
-                edgePositions.Add(new Vector2(obstacle.LeftX - 1, minY));
-            }
-            if (obstacle.RightX < lawn.Width - 1)
-            {
-                edgePositions.Add(new Vector2(obstacle.RightX + 1, minY));
-            }
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, minY));
         }
         if (objectsBelow.Count() > 0)
         {
@@ -279,17 +262,10 @@ public class PathStep
             var obstacle = orderedObjects.First();
             maxY = obstacle.TopY - 1;
 
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, maxY));
             edgePositions.Add(new Vector2(obstacle.LeftX, maxY));
             edgePositions.Add(new Vector2(obstacle.RightX, maxY));
-
-            if (obstacle.LeftX > 0)
-            {
-                edgePositions.Add(new Vector2(obstacle.LeftX - 1, maxY));
-            }
-            if (obstacle.RightX < lawn.Width - 1)
-            {
-                edgePositions.Add(new Vector2(obstacle.RightX + 1, maxY));
-            }
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, maxY));
         }
 
         // rectangle spanning area between obstacles in row / column
@@ -323,27 +299,31 @@ public class PathStep
         for (int i = 0; i < obstacles.Count; i++)
         {
             var obstacle = obstacles[i];
-            if (obstacle.LeftX > 0)
-            {
-                edgeX.Add(obstacle.LeftX - 1);
-            }
-            edgeX.Add(obstacle.LeftX);
-            edgeX.Add(obstacle.RightX);
-            if (obstacle.RightX < lawn.Width - 1)
-            {
-                edgeX.Add(obstacle.RightX + 1);
-            }
 
-            if (obstacle.TopY > 0)
-            {
-                edgeY.Add(obstacle.TopY - 1);
-            }
-            edgeY.Add(obstacle.TopY);
-            edgeY.Add(obstacle.BottomY);
-            if (obstacle.BottomY < lawn.Height - 1)
-            {
-                edgeY.Add(obstacle.BottomY + 1);
-            }
+            // positions around corners of obstacle
+            edgePositions.Add(new Vector2(obstacle.LeftX, obstacle.TopY - 1));
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, obstacle.TopY - 1));
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, obstacle.TopY));
+
+            edgePositions.Add(new Vector2(obstacle.RightX, obstacle.TopY - 1));
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, obstacle.TopY - 1));
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, obstacle.TopY));
+
+            edgePositions.Add(new Vector2(obstacle.LeftX, obstacle.BottomY + 1));
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, obstacle.BottomY + 1));
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, obstacle.BottomY));
+
+            edgePositions.Add(new Vector2(obstacle.RightX, obstacle.BottomY + 1));
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, obstacle.BottomY + 1));
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, obstacle.BottomY));
+
+            // direct line between start position and obstacle
+            edgePositions.Add(new Vector2(startPosition.X, obstacle.TopY - 1));
+            edgePositions.Add(new Vector2(startPosition.X, obstacle.BottomY + 1));
+            edgePositions.Add(new Vector2(obstacle.LeftX - 1, startPosition.Y));
+            edgePositions.Add(new Vector2(obstacle.RightX + 1, startPosition.Y));
+
+
         }
 
         // create rectangles from startposition to edges
@@ -357,6 +337,12 @@ public class PathStep
 
         foreach (var pos in edgePositions)
         {
+            if (pos.X < 0 || pos.Y < 0 || pos.X >= lawn.Width || pos.Y >= lawn.Height)
+            {
+                // outside lawn
+                continue;
+            }
+
             var rect = new PathRectangle(startPosition, pos)
             {
                 StartPosition = startPosition
@@ -491,4 +477,22 @@ public class PathStep
         return true;
     }
 
+    internal List<PathStep> GetLastSteps()
+    {
+        var lastSteps = new List<PathStep>();
+
+        if (NextSteps.Count == 0)
+        {
+            lastSteps.Add(this);
+        }
+        else
+        {
+            foreach (var step in NextSteps)
+            {
+                lastSteps.AddRange(step.GetLastSteps());
+            }
+        }
+
+        return lastSteps;
+    }
 }

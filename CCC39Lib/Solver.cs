@@ -27,6 +27,7 @@ public class Solver
             4 => SolveLevel4(lines),
             5 => SolveLevel4(lines),
             6 => SolveLevel4(lines, true),
+            7 => SolveLevel4(lines, true),
             _ => throw new InvalidOperationException(($"Level {level} not supported."))
         };
     }
@@ -186,11 +187,12 @@ public class Solver
         {
             FindPath(lawn, useCycle);
             fullResult.AppendLine(lawn.InstructionString);
-            // Console.WriteLine($"Lawn {lawnNum++}");
+            Console.WriteLine($"Lawn {lawnNum++}, took {Timing} ms");
             totalTime += Timing;
             lawn.ClearPath();
         }
 
+        Console.WriteLine($"File took {totalTime} ms");
         return fullResult.ToString().TrimEnd('\n').TrimEnd('\r');
     }
 
@@ -344,5 +346,10 @@ public class Solver
     {
         FindPath(lawn);
         return Timing;
+    }
+
+    public void CreateAllPaths(Lawn lawn)
+    {
+        lawn.CreateAllPaths();
     }
 }

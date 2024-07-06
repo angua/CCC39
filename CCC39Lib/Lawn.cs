@@ -35,6 +35,8 @@ public class Lawn
 
     public PathStep StartPathStep { get; set; } = new();
 
+    public List<PathStep> AllLastSteps { get; set; } = new();
+
 
     public bool MowingFinished { get; set; } = false;
     public int PathStepsCount {  get; set; } = 0;
@@ -50,6 +52,7 @@ public class Lawn
         StartPathStep = new();
         MowingFinished = false;
         PathStepsCount = 0;
+        AllLastSteps.Clear();
     }
 
 
@@ -193,5 +196,29 @@ public class Lawn
 
     }
 
+    internal void CreateAllPaths()
+    {
+        AllLastSteps.Clear();
 
+        foreach (var step in StartPathStep.NextSteps)
+        {
+            AllLastSteps.AddRange(step.GetLastSteps());
+        }
+    }
+
+    public void SetStepsfromLast(PathStep step)
+    {
+        var steps = new List<PathStep>();
+
+        steps.Add(step);
+
+        while (step.PreviousStep != null)
+        {
+            step = step.PreviousStep;
+            steps.Add(step);
+        }
+
+        steps.Reverse();
+        CorrectPathSteps = steps;
+    }
 }

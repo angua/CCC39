@@ -78,6 +78,39 @@ class MainViewModel : ViewModelBase
     }
 
 
+
+    public int CurrentPathIndex
+    {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
+
+    public PathStep? CurrentLastPathstep
+    {
+        get => GetValue<PathStep>();
+        set
+        {
+            SetValue(value);
+            if (value != null)
+            {
+                CurrentLawn.SetStepsfromLast(value);
+                _solver.CreatePathfromSteps(CurrentLawn);
+
+                LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
+
+                DrawLawn(CurrentLawn);
+            }
+        }
+    }
+
+
+    public int AllPathCount
+    {
+        get => GetValue<int>();
+        set => SetValue(value);
+    }
+
+
     public string Instructions
     {
         get => GetValue<string>();
@@ -98,13 +131,15 @@ class MainViewModel : ViewModelBase
 
         PreviousInput = new RelayCommand(CanPreviousInput, DoPreviousInput);
         NextInput = new RelayCommand(CanNextInput, DoNextInput);
+
         FindPath = new RelayCommand(CanFindPath, DoFindPath);
 
-        ShowPathFinding = new RelayCommand(CanShowPathFinding, DoShowPathFinding);
         FindPathNextStep = new RelayCommand(CanFindPathNextStep, DoFindPathNextStep);
+
+        PreviousPath = new RelayCommand(CanPreviousPath, DoPreviousPath);
+        NextPath = new RelayCommand(CanNextPath, DoNextPath);
+
         ClearPath = new RelayCommand(CanClearPath, DoClearPath);
-
-
     }
 
     public RelayCommand PreviousInput { get; }
@@ -128,15 +163,37 @@ class MainViewModel : ViewModelBase
     }
 
 
+    public RelayCommand PreviousPath { get; }
+    public bool CanPreviousPath()
+    {
+        return CurrentLawn != null && CurrentPathIndex > 0;
+    }
+    public void DoPreviousPath()
+    {
+        CurrentLastPathstep = CurrentLawn.AllLastSteps[--CurrentPathIndex];
+    }
+
+    public RelayCommand NextPath { get; }
+    public bool CanNextPath()
+    {
+        return CurrentLawn != null && CurrentPathIndex < CurrentLawn.AllLastSteps.Count - 1;
+    }
+    public void DoNextPath()
+    {
+        CurrentLastPathstep = CurrentLawn.AllLastSteps[++CurrentPathIndex];
+    }
+
+
+
     public RelayCommand FindPath { get; }
     public bool CanFindPath()
     {
-        return true;
+        return CurrentLawnSet != null;
     }
     public void DoFindPath()
     {
         var useCycles = false;
-        if (CurrentLawnSet.Level == 6)
+        if (CurrentLawnSet.Level == 6 || CurrentLawnSet.Level == 7)
         {
             useCycles = true;
         }
@@ -151,24 +208,6 @@ class MainViewModel : ViewModelBase
         Instructions = CurrentLawn.InstructionString;
 
     }
-    public RelayCommand ShowPathFinding { get; }
-    public bool CanShowPathFinding()
-    {
-        return true;
-    }
-    public void DoShowPathFinding()
-    {
-        while (!CurrentLawn.MowingFinished)
-        {
-            _solver.FindPathNextStep(CurrentLawn);
-            _solver.CreatePathfromSteps(CurrentLawn);
-            LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
-            StepCount = CurrentLawn.PathStepsCount;
-            DrawLawn(CurrentLawn);
-            Thread.Sleep(10);
-        }
-
-    }
 
 
     public RelayCommand FindPathNextStep { get; }
@@ -178,7 +217,23 @@ class MainViewModel : ViewModelBase
     }
     public void DoFindPathNextStep()
     {
-        _solver.FindPathNextStep(CurrentLawn);
+        var useCycles = false;
+        if (CurrentLawnSet.Level == 6 || CurrentLawnSet.Level == 7)
+        {
+            useCycles = true;
+        }
+
+        _solver.FindPathNextStep(CurrentLawn, useCycles);
+        _solver.CreateAllPaths(CurrentLawn);
+
+        AllPathCount = CurrentLawn.AllLastSteps.Count;
+
+        CurrentPathIndex = 0;
+        CurrentLastPathstep = CurrentLawn.AllLastSteps[CurrentPathIndex];
+
+        StepCount = CurrentLawn.PathStepsCount;
+        Timing = _solver.Timing;
+
         _solver.CreatePathfromSteps(CurrentLawn);
         LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
         StepCount = CurrentLawn.PathStepsCount;
@@ -196,6 +251,7 @@ class MainViewModel : ViewModelBase
         CurrentLawn.ClearPath();
         StepCount = 0;
         Timing = 0;
+        AllPathCount = 0;
         DrawLawn(CurrentLawn);
     }
 
