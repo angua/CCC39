@@ -226,17 +226,21 @@ class MainViewModel : ViewModelBase
         _solver.FindPathNextStep(CurrentLawn, useCycles);
         _solver.CreateAllPaths(CurrentLawn);
 
-        AllPathCount = CurrentLawn.AllLastSteps.Count;
+        if (CurrentLawn.AllLastSteps.Count > 0)
+        {
 
-        CurrentPathIndex = 0;
-        CurrentLastPathstep = CurrentLawn.AllLastSteps[CurrentPathIndex];
+            AllPathCount = CurrentLawn.AllLastSteps.Count;
+
+            CurrentPathIndex = 0;
+            CurrentLastPathstep = CurrentLawn.AllLastSteps[CurrentPathIndex];
+            LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
+            StepCount = CurrentLawn.PathStepsCount;
+        }
 
         StepCount = CurrentLawn.PathStepsCount;
         Timing = _solver.Timing;
 
         _solver.CreatePathfromSteps(CurrentLawn);
-        LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
-        StepCount = CurrentLawn.PathStepsCount;
 
         DrawLawn(CurrentLawn);
     }

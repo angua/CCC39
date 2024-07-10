@@ -21,22 +21,21 @@ public class Lawn
 
     // movement instructions
     public List<char> Instructions { get; set; } = new();
-
     public string InstructionString => string.Join("", Instructions);
 
-    // start positions for path search
+    // start positions for rectangle path search
     public List<Vector2> StartPositions { get; set; } = new();
-    public int StartPositionIndex { get; set; }
     public List<PathRectangle> NextPathrectangles { get; set; } = new();
-    public int NextRectangleIndex { get; set; } = 0;
 
+    // path finding using rectangles
     public HashSet<PathRectangle> PathRectangles { get; set; } = new();
     public List<PathStep> CorrectPathSteps { get; set; } = new();
-
     public PathStep StartPathStep { get; set; } = new();
-
     public List<PathStep> AllLastSteps { get; set; } = new();
 
+
+    // path finding by expanding circular path
+    public PathRevisiion? StartPathRevision {  get; set; } 
 
     public bool MowingFinished { get; set; } = false;
     public int PathStepsCount {  get; set; } = 0;
@@ -44,9 +43,7 @@ public class Lawn
     public void ClearPath()
     {
         StartPositions.Clear();
-        StartPositionIndex = 0;
         NextPathrectangles.Clear();
-        NextRectangleIndex = 0;
         PathRectangles.Clear();
         CorrectPathSteps.Clear();
         StartPathStep = new();
@@ -109,91 +106,99 @@ public class Lawn
     internal void SetStartPositions()
     {
         PathStepsCount = 0;
-        var treePos = TreePositions.First();
 
-        var startX = new HashSet<int>();
-        var startY = new HashSet<int>();
+        if (TreePositions.Count > 0)
+        {
+            var treePos = TreePositions.First();
 
-        // 1 distance to wall, place start position between tree and wall
-        if (treePos.X == 1)
-        {
-            startX.Add(0);
-            startY.Add((int)treePos.Y);
-        }
-        else if (treePos.X == Width - 2)
-        {
-            startX.Add(Width - 1);
-            startY.Add((int)treePos.Y);
-        }
-        if (treePos.Y == 1)
-        {
-            startX.Add((int)treePos.X);
-            startY.Add(0);
-        }
-        else if (treePos.Y == Height - 2)
-        {
-            startX.Add((int)treePos.X);
-            startY.Add(Height - 1);
-        }
 
-        if (treePos.Y % 2 == 0 && (Height - treePos.Y) % 2 == 0)
-        {
-            // start left above tree
-            if (treePos.X > 0)
+            var startX = new HashSet<int>();
+            var startY = new HashSet<int>();
+
+            // 1 distance to wall, place start position between tree and wall
+            if (treePos.X == 1)
             {
-                startX.Add(((int)treePos.X - 1));
+                startX.Add(0);
+                startY.Add((int)treePos.Y);
             }
-            startX.Add((int)treePos.X);
-
-        }
-        else
-        {
-
-
-            // start above tree
-            startX.Add((int)treePos.X);
-            if (treePos.X > 0)
+            else if (treePos.X == Width - 2)
             {
-                startX.Add(((int)treePos.X - 1));
+                startX.Add(Width - 1);
+                startY.Add((int)treePos.Y);
             }
-        }
-
-
-
-        if (treePos.X < Width - 1)
-        {
-            startX.Add(((int)treePos.X + 1));
-        }
-
-        startX.Add(0);
-        startX.Add(Width - 1);
-
-        startY.Add(0);
-        startY.Add(Height - 1);
-
-        if (treePos.Y > 0)
-        {
-            startY.Add(((int)treePos.Y - 1));
-        }
-        startY.Add((int)treePos.Y);
-        if (treePos.Y < Height - 1)
-        {
-            startY.Add(((int)treePos.Y + 1));
-        }
-
-        foreach (var x in startX)
-        {
-            foreach (var y in startY)
+            if (treePos.Y == 1)
             {
-                var pos = new Vector2(x, y);
+                startX.Add((int)treePos.X);
+                startY.Add(0);
+            }
+            else if (treePos.Y == Height - 2)
+            {
+                startX.Add((int)treePos.X);
+                startY.Add(Height - 1);
+            }
 
-                if (!TreePositions.Contains(pos))
+            if (treePos.Y % 2 == 0 && (Height - treePos.Y) % 2 == 0)
+            {
+                // start left above tree
+                if (treePos.X > 0)
                 {
-                    StartPositions.Add(pos);
+                    startX.Add(((int)treePos.X - 1));
+                }
+                startX.Add((int)treePos.X);
+
+            }
+            else
+            {
+
+
+                // start above tree
+                startX.Add((int)treePos.X);
+                if (treePos.X > 0)
+                {
+                    startX.Add(((int)treePos.X - 1));
+                }
+            }
+
+
+
+            if (treePos.X < Width - 1)
+            {
+                startX.Add(((int)treePos.X + 1));
+            }
+
+            startX.Add(0);
+            startX.Add(Width - 1);
+
+            startY.Add(0);
+            startY.Add(Height - 1);
+
+            if (treePos.Y > 0)
+            {
+                startY.Add(((int)treePos.Y - 1));
+            }
+            startY.Add((int)treePos.Y);
+            if (treePos.Y < Height - 1)
+            {
+                startY.Add(((int)treePos.Y + 1));
+            }
+
+            foreach (var x in startX)
+            {
+                foreach (var y in startY)
+                {
+                    var pos = new Vector2(x, y);
+
+                    if (!TreePositions.Contains(pos))
+                    {
+                        StartPositions.Add(pos);
+                    }
                 }
             }
         }
-
+        else
+        {
+            StartPositions.Add(new Vector2(0, 0));
+        }
     }
 
     internal void CreateAllPaths()
@@ -220,5 +225,19 @@ public class Lawn
 
         steps.Reverse();
         CorrectPathSteps = steps;
+    }
+
+    internal bool InsideLawn(Vector2 nextPos)
+    {
+        if (nextPos.Y >= Height || nextPos.X >= Width || nextPos.Y < 0 || nextPos.X < 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    internal bool IsEdgePosition(Vector2 currentPos)
+    {
+        return (currentPos.X == 0 || currentPos.Y == 0 || currentPos.X == Width - 1 || currentPos.Y == Height - 1);
     }
 }

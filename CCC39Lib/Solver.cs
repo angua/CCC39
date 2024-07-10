@@ -24,10 +24,10 @@ public class Solver
             1 => SolveLevel1(lines),
             2 => SolveLevel2(lines),
             3 => SolveLevel3(lines),
-            4 => SolveLevel4(lines),
-            5 => SolveLevel4(lines),
-            6 => SolveLevel4(lines, true),
-            7 => SolveLevel4(lines, true),
+            4 => SolveLevel4(4, lines),
+            5 => SolveLevel4(5, lines),
+            6 => SolveLevel4(6, lines, true),
+            7 => SolveLevel4(7, lines, true),
             _ => throw new InvalidOperationException(($"Level {level} not supported."))
         };
     }
@@ -174,12 +174,12 @@ public class Solver
     }
 
 
-    private string SolveLevel4(List<string> lines, bool useCycle = false)
+    private string SolveLevel4(int level, List<string> lines, bool useCycle = false)
     {
         long totalTime = 0;
         var fullResult = new StringBuilder();
 
-        var lawnSet = new LawnSet(4, lines);
+        var lawnSet = new LawnSet(level, lines);
 
         var lawnNum = 0;
 
@@ -201,15 +201,113 @@ public class Solver
     {
         var watch = new Stopwatch();
         watch.Start();
-        while (!lawn.MowingFinished)
+        if (lawn.TreePositions.Count < 2)
         {
-            FindPathNextStep(lawn, useCycle);
+            // find path using rectangles
+            while (!lawn.MowingFinished)
+            {
+                FindRectanglePathNextStep(lawn, useCycle);
+            }
+        }
+        else
+        {
+            // find path by expanding from circle path
+            while (!lawn.MowingFinished)
+            {
+                ExpandPathNextStep(lawn);
+            }
+
         }
         watch.Stop();
         Timing = watch.ElapsedMilliseconds;
     }
 
     public void FindPathNextStep(Lawn lawn, bool useCycle = false)
+    {
+        if (lawn.TreePositions.Count < 2)
+        {
+            FindRectanglePathNextStep(lawn, useCycle);
+        }
+        else
+        {
+            ExpandPathNextStep(lawn);
+        }
+    }
+
+
+
+    private void ExpandPathNextStep(Lawn lawn)
+    {
+        if (lawn.StartPathRevision == null)
+        {
+            lawn.StartPathRevision = new PathRevisiion();
+
+            // create path encircling lawn, avoiding trees
+            // start in upper left corner
+            var currentPos = new Vector2(0, 0);
+
+            // start by moving down
+            var moveDir = _down;
+            var currentMoveDir = _down;
+
+            while (lawn.TreePositions.Contains(currentPos))
+            {
+                // move start position if there is a tree there
+                currentPos += currentMoveDir;
+            }
+            // no tree
+            lawn.StartPathRevision.Path.Add(currentPos);
+
+            // walk along the edges of the lawn, finished when next to start position
+            while (lawn.StartPathRevision.Path.Count < 2 * lawn.Height + 2 * lawn.Width - 4 ||
+                (currentPos - lawn.StartPathRevision.Path.First()).Length() > 1)
+            {
+                var nextPos = currentPos + currentMoveDir;
+
+                if (!lawn.InsideLawn(nextPos))
+                {
+                    if (currentMoveDir != moveDir)
+                    {
+                        // moved outside after surrounding tree
+                        currentMoveDir = moveDir;
+                        continue;
+                    }
+
+                    // turn left at the edges
+                    moveDir = MathUtils.TurnLeft(moveDir);
+                    currentMoveDir = moveDir;
+                    continue;
+                }
+
+                // avoid tree
+                if (lawn.TreePositions.Contains(nextPos))
+                {
+                    // move left towards the center of the lawn
+                    currentMoveDir = MathUtils.TurnLeft(currentMoveDir);
+                    continue;
+                }
+
+                // next position is valid
+                currentPos = nextPos;
+                lawn.StartPathRevision.Path.Add(currentPos);
+
+                // not next to wall, try to return to the wall
+                if (!lawn.IsEdgePosition(currentPos))
+                {
+                    currentMoveDir = MathUtils.TurnRight(currentMoveDir);
+                }
+
+            }
+
+
+        }
+    }
+
+
+
+
+
+    public void FindRectanglePathNextStep(Lawn lawn, bool useCycle = false)
     {
         lawn.PathStepsCount++;
 
@@ -219,9 +317,19 @@ public class Solver
             // create start positions
             lawn.SetStartPositions();
             lawn.StartPathStep = PathStep.CreateEmptyPathStep(lawn);
-            lawn.StartPathStep.NextStartPositions = lawn.StartPositions;
+            if (lawn.TreePositions.Count > 1)
+            {
+                lawn.StartPathStep.NextStartPositions = new List<Vector2>()
+                {
+                    lawn.StartPositions.First()
+                };
+            }
+            else
+            {
+                lawn.StartPathStep.NextStartPositions = lawn.StartPositions;
+            }
 
-            foreach (var pos in lawn.StartPositions)
+            foreach (var pos in lawn.StartPathStep.NextStartPositions)
             {
                 var rectangles = lawn.StartPathStep.FindRectangles(lawn, pos);
 
@@ -277,13 +385,25 @@ public class Solver
     public void CreatePathfromSteps(Lawn lawn)
     {
         var path = new List<Vector2>();
-        foreach (var step in lawn.CorrectPathSteps)
+
+        if (lawn.CorrectPathSteps.Count > 0)
         {
-            step.CreatePath();
-            path.AddRange(step.Path);
+
+            foreach (var step in lawn.CorrectPathSteps)
+            {
+                step.CreatePath();
+                path.AddRange(step.Path);
+            }
+            lawn.Path = path;
+
         }
 
-        lawn.Path = path;
+        else if (lawn.StartPathRevision != null)
+        {
+            lawn.Path = lawn.StartPathRevision.Path;
+        }
+
+
     }
 
     public List<char> CreateDirectionsFromPath(List<Vector2> path)

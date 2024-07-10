@@ -29,13 +29,9 @@ public class PathStep
 
     public bool MowingFinished { get; set; } = false;
 
-    public int NextRectangleIndex { get; set; }
-
     public List<Vector2> Path => PathingRectangle.Path;
 
     public bool IsValid { get; set; } = true;
-
-    public bool ChooseDifferentPath { get; set; } = false;
 
     internal void CreatePath()
     {
@@ -176,7 +172,6 @@ public class PathStep
             }
             pathstep.NextRectangles = rectangles.OrderByDescending(r => r.Area).ToList();
 
-            pathstep.NextRectangleIndex = 0;
         }
         return pathstep;
     }
@@ -223,7 +218,7 @@ public class PathStep
         // objects closest to start position in all 4 directions
         var obstacles = new List<Rectangle>();
 
-        if (objectsLeft.Count() > 0)
+        if (objectsLeft.Any())
         {
             var orderedObjects = objectsLeft.OrderByDescending(r => r.RightX);
             var obstacle = orderedObjects.First();
@@ -234,7 +229,7 @@ public class PathStep
             edgePositions.Add(new Vector2(minX, obstacle.BottomY));
             edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
         }
-        if (objectsRight.Count() > 0)
+        if (objectsRight.Any())
         {
             var orderedObjects = objectsRight.OrderBy(r => r.LeftX);
             var obstacle = orderedObjects.First();
@@ -245,7 +240,7 @@ public class PathStep
             edgePositions.Add(new Vector2(maxX, obstacle.BottomY));
             edgePositions.Add(new Vector2(minX, obstacle.BottomY + 1));
         }
-        if (objectsAbove.Count() > 0)
+        if (objectsAbove.Any())
         {
             var orderedObjects = objectsAbove.OrderByDescending(r => r.BottomY);
             var obstacle = orderedObjects.First();
@@ -256,7 +251,7 @@ public class PathStep
             edgePositions.Add(new Vector2(obstacle.RightX, minY));
             edgePositions.Add(new Vector2(obstacle.RightX + 1, minY));
         }
-        if (objectsBelow.Count() > 0)
+        if (objectsBelow.Any())
         {
             var orderedObjects = objectsBelow.OrderBy(r => r.TopY);
             var obstacle = orderedObjects.First();

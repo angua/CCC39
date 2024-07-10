@@ -27,9 +27,7 @@ public class PathRectangle : Rectangle
     private int _firstMoveCount = 0;
     private int _secondMoveCount = 0;
 
-    public Vector2 FirstOppositePosition { get; set; }
-
-    public List<Vector2> Path = new();
+    public List<Vector2> Path { get; set; } = new();
 
     internal void CreatePath()
     {
@@ -66,34 +64,35 @@ public class PathRectangle : Rectangle
 
     internal void GetEndPosition()
     {
+        var firstOppositePosition = new Vector2(StartPosition.X, StartPosition.Y);
+
         if (FirstMoveDir.X < 0)
         {
             // move left first
-            FirstOppositePosition = new Vector2(LeftX, StartPosition.Y);
+            firstOppositePosition = new Vector2(LeftX, StartPosition.Y);
             _firstMoveCount = Width - 1;
         }
         else if (FirstMoveDir.X > 0)
         {
             // move right first
-            FirstOppositePosition = new Vector2(RightX, StartPosition.Y);
+            firstOppositePosition = new Vector2(RightX, StartPosition.Y);
             _firstMoveCount = Width - 1;
         }
         else if (FirstMoveDir.Y < 0)
         {
             // move up first
-            FirstOppositePosition = new Vector2(StartPosition.X, TopY);
+            firstOppositePosition = new Vector2(StartPosition.X, TopY);
             _firstMoveCount = Height - 1;
         }
         else if (FirstMoveDir.Y > 0)
         {
             // move down first
-            FirstOppositePosition = new Vector2(StartPosition.X, BottomY);
+            firstOppositePosition = new Vector2(StartPosition.X, BottomY);
             _firstMoveCount = Height - 1;
         }
         else
         {
             // both directions 0, end position is start position
-            FirstOppositePosition = new Vector2(StartPosition.X, StartPosition.Y);
             _firstMoveCount = 0;
             _secondMoveCount = 0;
         }
@@ -103,7 +102,7 @@ public class PathRectangle : Rectangle
             // move in x direction first, then meander in Y
             // after an odd number of meandering back and forth, the end position is at the opposite x position from the start
             // after even number, same x position as start
-            var endX = Height % 2 != 0 ? FirstOppositePosition.X : StartPosition.X;
+            var endX = Height % 2 != 0 ? firstOppositePosition.X : StartPosition.X;
             var endY = StartPosition.Y == TopY ? BottomY : TopY;
 
             EndPosition = new Vector2(endX, endY);
@@ -112,7 +111,7 @@ public class PathRectangle : Rectangle
         else if (SecondMoveDir.X != 0)
         {
             // move in y first, the meander in x
-            var endY = Width % 2 != 0 ? FirstOppositePosition.Y : StartPosition.Y;
+            var endY = Width % 2 != 0 ? firstOppositePosition.Y : StartPosition.Y;
             var endX = StartPosition.X == LeftX ? RightX : LeftX;
             EndPosition = new Vector2(endX, endY);
             _secondMoveCount = Width - 1;
@@ -120,7 +119,7 @@ public class PathRectangle : Rectangle
         else
         {
             // no mevement in second dir
-            EndPosition = FirstOppositePosition;
+            EndPosition = firstOppositePosition;
             _secondMoveCount = 0;
         }
 
