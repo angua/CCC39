@@ -240,7 +240,7 @@ public class Solver
     {
         if (lawn.StartPathRevision == null)
         {
-            lawn.StartPathRevision = new PathRevisiion();
+            lawn.StartPathRevision = new PathRevision();
 
             // create path encircling lawn, avoiding trees
             // start in upper left corner
@@ -254,6 +254,11 @@ public class Solver
             {
                 // move start position if there is a tree there
                 currentPos += currentMoveDir;
+
+                if (!lawn.InsideLawn(currentPos))
+                {
+                    currentPos = new Vector2(currentPos.X + 1, 0);
+                }
             }
             // no tree
             lawn.StartPathRevision.Path.Add(currentPos);
@@ -299,8 +304,62 @@ public class Solver
 
             }
 
+            lawn.PathRevisions.Add(lawn.StartPathRevision);
+        }
+        else
+        {
+            // find first suitable position for folding inwards
+            var currentRevision = lawn.PathRevisions.Last();
+
+            for (int i = 1; i < currentRevision.Path.Count - 1; i++)
+            {
+                var currentPos = currentRevision.Path[i];
+                var nextPos = currentRevision.Path[i + 1];
+
+                // direction from one path position to next
+                var dir = nextPos - currentPos;
+
+                // move left perpendicular to path from first position
+                var left = MathUtils.TurnLeft(dir);
+                var testpos1 = currentPos + left;
+
+                if (lawn.TreePositions.Contains(testpos1))
+                {
+                    continue;
+                }
+                if (currentRevision.Path.Contains(testpos1))
+                {
+                    continue;
+                }
+
+                // position next to second position
+                var testpos2 = nextPos + left;
+
+                if (lawn.TreePositions.Contains(testpos2))
+                {
+                    continue;
+                }
+                if (currentRevision.Path.Contains(testpos2))
+                {
+                    continue;
+                }
+
+                // both positions are free, fold path inward
+                var newPath = new List<Vector2>(currentRevision.Path);
+
+                newPath.Insert(i + 1, testpos2);
+                newPath.Insert(i + 1, testpos1);
+
+                var newRevision = new PathRevision();
+                newRevision.Path = newPath;
+                lawn.PathRevisions.Add(newRevision);
+                break;
+
+            }
 
         }
+
+
     }
 
 
@@ -398,9 +457,9 @@ public class Solver
 
         }
 
-        else if (lawn.StartPathRevision != null)
+        else if (lawn.PathRevisions.Count > 0)
         {
-            lawn.Path = lawn.StartPathRevision.Path;
+            lawn.Path = lawn.PathRevisions.Last().Path;
         }
 
 

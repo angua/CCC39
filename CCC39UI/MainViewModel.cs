@@ -226,9 +226,9 @@ class MainViewModel : ViewModelBase
         _solver.FindPathNextStep(CurrentLawn, useCycles);
         _solver.CreateAllPaths(CurrentLawn);
 
+        // rectangle method
         if (CurrentLawn.AllLastSteps.Count > 0)
         {
-
             AllPathCount = CurrentLawn.AllLastSteps.Count;
 
             CurrentPathIndex = 0;

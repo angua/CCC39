@@ -35,7 +35,9 @@ public class Lawn
 
 
     // path finding by expanding circular path
-    public PathRevisiion? StartPathRevision {  get; set; } 
+    public PathRevision? StartPathRevision {  get; set; } 
+    public List<PathRevision> PathRevisions { get; set; } = new();
+
 
     public bool MowingFinished { get; set; } = false;
     public int PathStepsCount {  get; set; } = 0;
