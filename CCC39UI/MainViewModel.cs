@@ -200,8 +200,11 @@ class MainViewModel : ViewModelBase
 
         _solver.FindPath(CurrentLawn, useCycles);
         _solver.CreatePathfromSteps(CurrentLawn);
-        LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
-        StepCount = CurrentLawn.PathStepsCount;
+        if (CurrentLawn.AllLastSteps.Count > 0)
+        {
+            LastStepValid = CurrentLawn.CorrectPathSteps.Last().IsValid.ToString();
+            StepCount = CurrentLawn.PathStepsCount;
+        }
         Timing = _solver.Timing;
 
         DrawLawn(CurrentLawn);

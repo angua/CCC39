@@ -311,9 +311,25 @@ public class Solver
             // find first suitable position for folding inwards
             var currentRevision = lawn.PathRevisions.Last();
 
+            if (currentRevision.IsValid == false)
+            {
+                lawn.PathRevisions.RemoveAt(lawn.PathRevisions.Count - 1);
+                var previousRevision = lawn.PathRevisions.Last();
+                previousRevision.ForbiddenExpandPositions.Add(currentRevision.ExpandPosition);
+                return;
+            }
+
+            var found = false;
+
+
             for (int i = 1; i < currentRevision.Path.Count - 1; i++)
             {
                 var currentPos = currentRevision.Path[i];
+                if (currentRevision.ForbiddenExpandPositions.Contains(currentPos))
+                {
+                    continue;
+                }
+
                 var nextPos = currentRevision.Path[i + 1];
 
                 // direction from one path position to next
@@ -352,9 +368,34 @@ public class Solver
 
                 var newRevision = new PathRevision();
                 newRevision.Path = newPath;
+                newRevision.ExpandPosition = currentPos;
+
+                // validity check
+                // positions surrounding new path points
+
+                if (!PerformValidityCheck(lawn, newRevision, testpos1) || !PerformValidityCheck(lawn, newRevision, testpos2))
+                {
+                    currentRevision.ForbiddenExpandPositions.Add(currentPos);
+                    continue;
+                }
+
+
                 lawn.PathRevisions.Add(newRevision);
+                found = true;
+                if (newRevision.Path.Count == lawn.Fields)
+                {
+                    lawn.MowingFinished = true;
+                    return;
+                }
+
+
                 break;
 
+            }
+
+            if (!found)
+            {
+                currentRevision.IsValid = false;
             }
 
         }
@@ -362,9 +403,51 @@ public class Solver
 
     }
 
+    private bool PerformValidityCheck(Lawn lawn, PathRevision revision, Vector2 testpos)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            var neighbordir = MathUtils.OrthogonalDirections[j];
+            var neighborpos = testpos + neighbordir;
 
+            if (lawn.TreePositions.Contains(neighborpos))
+            {
+                continue;
+            }
+            if (revision.Path.Contains(neighborpos))
+            {
+                continue;
+            }
 
+            // empty neighbor position
+            var emptyPositionsnext = 0;
+            for (int k = 0; k < 4; k++)
+            {
+                var checkdir = MathUtils.OrthogonalDirections[k];
+                var checkpos = neighborpos + checkdir;
 
+                if (lawn.TreePositions.Contains(checkpos))
+                {
+                    continue;
+                }
+                if (revision.Path.Contains(checkpos))
+                {
+                    continue;
+                }
+                // empty position next to empty neighbor
+                emptyPositionsnext++;
+            }
+
+            if (emptyPositionsnext == 0)
+            {
+                // single empty position, can not be filled, invalid
+                revision.IsValid = false;
+                return false;
+            }
+        }
+        return true;
+
+    }
 
     public void FindRectanglePathNextStep(Lawn lawn, bool useCycle = false)
     {
