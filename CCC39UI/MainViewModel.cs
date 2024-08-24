@@ -58,7 +58,7 @@ class MainViewModel : ViewModelBase
     }
 
     private BitmapGridDrawing? _lawnBitmap;
-    private BitmapGridDrawing? _inputBitmap;
+
     public Image LawnImage
     {
         get => GetValue<Image>();
@@ -76,7 +76,6 @@ class MainViewModel : ViewModelBase
         get => GetValue<int>();
         set => SetValue(value);
     }
-
 
 
     public int CurrentPathIndex
@@ -102,7 +101,6 @@ class MainViewModel : ViewModelBase
             }
         }
     }
-
 
     public int AllPathCount
     {
@@ -184,7 +182,6 @@ class MainViewModel : ViewModelBase
     }
 
 
-
     public RelayCommand FindPath { get; }
     public bool CanFindPath()
     {
@@ -262,8 +259,6 @@ class MainViewModel : ViewModelBase
         DrawLawn(CurrentLawn);
     }
 
-
-
     private void ParseLawns()
     {
         var inputPath = $"../../../../Files";
@@ -306,8 +301,6 @@ class MainViewModel : ViewModelBase
         }
     }
 
-
-
     private void DrawLawn(Lawn lawn)
     {
         _lawnBitmap = new BitmapGridDrawing(lawn.Width, lawn.Height, _gridPositionSize, 1);
@@ -331,9 +324,7 @@ class MainViewModel : ViewModelBase
             {
                 _lawnBitmap.FillGridCell((int)pos.X, (int)pos.Y, rectangleColor);
             }
-
         }
-
 
         if (lawn.Path.Count > 0)
         {
@@ -344,7 +335,6 @@ class MainViewModel : ViewModelBase
             var endPos = lawn.Path.Last();
             _lawnBitmap.DrawXInGridcell((int)endPos.X, (int)endPos.Y, _gridPositionSize / 2, Color.FromRgb(255, 255, 0));
         }
-
 
         LawnImage = new Image();
 
@@ -366,8 +356,8 @@ class MainViewModel : ViewModelBase
             2 => Color.FromRgb(0, 210, 255),
             3 => Color.FromRgb(0, 240, 220),
             4 => Color.FromRgb(0, 133, 119),
-        };
-
+            _ => throw new InvalidOperationException($"Unknown color {s}")
+        }; 
 
     }
 }

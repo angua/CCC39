@@ -72,9 +72,6 @@
                 <Button Padding="6" Margin="10,0,0,0"  Command="{Binding NextPath}" Content="Next"></Button>
             </StackPanel>
 
-
-
-
             <StackPanel Orientation="Horizontal">
                 <TextBlock Width="100" Text="Last step valid" />
                 <TextBlock Text="{Binding LastStepValid}" />
@@ -88,15 +85,12 @@
                 <TextBlock Text="{Binding Timing}" />
             </StackPanel>
 
-
-
         </StackPanel>
 
         <ScrollViewer Margin="20,0,0,0" Grid.Column="2" Height="900" Width="900" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
             <Image Source="{Binding LawnImage.Source}" VerticalAlignment="Top" HorizontalAlignment="Left" />
 
         </ScrollViewer>
-
 
     </Grid>
 </Window>
